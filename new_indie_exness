@@ -1563,9 +1563,8 @@ class Main(MainContext):
                 entry_count[0] = 2.0
                 last_entry_bar[0] = float(self.bar_index)
                 last_entry_price[0] = pending_mid_value
-                if pending_trade_setup_day[0] == self._selected_report_day_key:
-                    report_active_trades[0] = report_active_trades[0] + 1.0
-                    report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
+                # Do not increment trade count here: this is the second leg
+                # of an already-counted early-entry setup.
                 self.chart.draw(
                     LabelAbs(
                         'MID ACTIVE | LOT ' + str(round(mid_leg_lot[0], 2)),
@@ -2411,6 +2410,11 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
+                        # Count the setup as ACTIVE at the immediate early fill.
+                        # The midpoint leg is optional and must not add another trade.
+                        if current_ist_day_key == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                            report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
                         pending_trade_side[0] = -1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
@@ -2503,6 +2507,11 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
+                        # Count the setup as ACTIVE at the immediate early fill.
+                        # The midpoint leg is optional and must not add another trade.
+                        if current_ist_day_key == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                            report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
                         pending_trade_side[0] = 1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
