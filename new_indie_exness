@@ -27,8 +27,8 @@ from indie.drawings import (
 
 # Adaptive hybrid trailing is a visual/backtest stop manager for M1 charts.
 
-# Entry 1 uses the original candle midpoint: (high + low) / 2.
-# It does not send or modify broker orders.
+# Option A uses two legs: Early 60% at confirmation close, Midpoint 40% at (high + low) / 2.
+# Common SL/TP and adaptive trailing are anchored to midpoint. This is chart-side simulation only.
 
 # ============================================================
 # HIGHER TIMEFRAME CONFIRMATION
@@ -380,6 +380,21 @@ class Main(MainContext):
         trade_lot = MutSeriesF.new(init=nan)
         trade_risk_cash = MutSeriesF.new(init=nan)
 
+        # Two-stage Option A: early leg (60%) plus midpoint leg (40%).
+        # entry[0] is the Early leg's actual fill; midpoint_master_entry
+        # remains the sole reference for SL/TP and trailing calculations.
+        midpoint_master_entry = MutSeriesF.new(init=nan)
+        early_leg_entry = MutSeriesF.new(init=nan)
+        early_leg_lot = MutSeriesF.new(init=nan)
+        mid_leg_lot = MutSeriesF.new(init=nan)
+        mid_leg_active = MutSeriesF.new(init=0.0)
+        pending_mid_entry = MutSeriesF.new(init=nan)
+        pending_early_entry = MutSeriesF.new(init=nan)
+        early_leg_closed = MutSeriesF.new(init=0.0)
+        mid_leg_pnl = MutSeriesF.new(init=0.0)
+        early_leg_pnl = MutSeriesF.new(init=0.0)
+        setup_risk_budget = MutSeriesF.new(init=nan)
+
         # Adaptive trailing state: all prices are simulated indicator levels.
         original_risk_distance = MutSeriesF.new(init=nan)
         favorable_extreme = MutSeriesF.new(init=nan)
@@ -513,6 +528,18 @@ class Main(MainContext):
             side[0] = side[1]
             trade_lot[0] = trade_lot[1]
             trade_risk_cash[0] = trade_risk_cash[1]
+
+            midpoint_master_entry[0] = midpoint_master_entry[1]
+            early_leg_entry[0] = early_leg_entry[1]
+            early_leg_lot[0] = early_leg_lot[1]
+            mid_leg_lot[0] = mid_leg_lot[1]
+            mid_leg_active[0] = mid_leg_active[1]
+            pending_mid_entry[0] = pending_mid_entry[1]
+            pending_early_entry[0] = pending_early_entry[1]
+            early_leg_closed[0] = early_leg_closed[1]
+            mid_leg_pnl[0] = mid_leg_pnl[1]
+            early_leg_pnl[0] = early_leg_pnl[1]
+            setup_risk_budget[0] = setup_risk_budget[1]
 
             original_risk_distance[0] = original_risk_distance[1]
             favorable_extreme[0] = favorable_extreme[1]
@@ -650,6 +677,17 @@ class Main(MainContext):
             side[0] = 0.0
             trade_lot[0] = nan
             trade_risk_cash[0] = nan
+            midpoint_master_entry[0] = nan
+            early_leg_entry[0] = nan
+            early_leg_lot[0] = nan
+            mid_leg_lot[0] = nan
+            mid_leg_active[0] = 0.0
+            pending_mid_entry[0] = nan
+            pending_early_entry[0] = nan
+            early_leg_closed[0] = 0.0
+            mid_leg_pnl[0] = 0.0
+            early_leg_pnl[0] = 0.0
+            setup_risk_budget[0] = nan
             original_risk_distance[0] = nan
             favorable_extreme[0] = nan
             trail_candidate[0] = nan
@@ -1491,115 +1529,52 @@ class Main(MainContext):
             daily_realized_pnl[0] = 0.0
             reduced_risk_mode[0] = 0.0
 
-        # Resolve pending setups before managing active-trade exits. The
-        # confirmation candle is deliberately excluded: its midpoint is
-        # inside its own range and must not self-trigger the pending entry.
+        # Two-stage pending midpoint activation. Early trade is live from
+        # the confirmation close; midpoint is activated only on a later bar.
         if (
             self.is_closed_bar
             and pending_trade_side[0] != 0.0
             and self.bar_index > pending_trade_setup_bar[0]
+            and mid_leg_active[0] == 0.0
+            and side[0] != 0.0
         ):
             pending_side_value = pending_trade_side[0]
-            pending_entry_value = pending_trade_entry[0]
-            pending_sl_value = pending_trade_sl[0]
-            pending_tp_value = pending_trade_tp[0]
-
-            # Declare touch flags in the enclosing scope. Indie scopes variables
-            # declared inside an if/else block to that indentation block.
-            pending_entry_touched = False
-            pending_sl_touched = False
-            pending_tp_touched = False
-
-            if pending_side_value == 1.0:
-                pending_entry_touched = self.low[0] <= pending_entry_value
-                pending_sl_touched = self.low[0] <= pending_sl_value
-                pending_tp_touched = self.high[0] >= pending_tp_value
-            else:
-                pending_entry_touched = self.high[0] >= pending_entry_value
-                pending_sl_touched = self.high[0] >= pending_sl_value
-                pending_tp_touched = self.low[0] <= pending_tp_value
-
-            pending_exit_touched = pending_sl_touched or pending_tp_touched
-            if pending_exit_touched:
-                # Conservative rule: if entry and pre-entry SL/TP are touched
-                # in the same candle, the order is Inactive, never a trade.
-                if pending_trade_setup_day[0] == self._selected_report_day_key:
-                    report_inactive_trades[0] = report_inactive_trades[0] + 1.0
-                    report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
-
-                    # Hypothetical inactive-order P/L: deliberately ignore whether
-                    # the planned entry was reached. Use the original planned
-                    # entry/SL/TP and conservative SL-first same-candle handling.
-                    inactive_exit_price = pending_sl_value if pending_sl_touched else pending_tp_value
-                    inactive_result = (
-                        (inactive_exit_price - pending_entry_value)
-                        * pending_side_value
-                        * self.contract_size
-                        * pending_trade_lot[0]
-                    )
-                    report_inactive_pnl[0] = report_inactive_pnl[0] + inactive_result
-
-                # Show the final pending-order status on its resolution candle.
-                inactive_status_text = (
-                    'INACTIVE | LOT ' + str(round(pending_trade_lot[0], 2))
-                )
-                inactive_status_price = (
-                    pending_sl_value if pending_sl_touched else pending_tp_value
-                )
-                self.chart.draw(
-                    LabelAbs(
-                        inactive_status_text,
-                        AbsolutePosition(self.time[0], inactive_status_price),
-                        font_size=10,
-                        text_color=color.BLACK,
-                        bg_color=color.TRANSPARENT
-                    )
-                )
-
-                pending_trade_side[0] = 0.0
-                pending_trade_entry[0] = nan
-                pending_trade_sl[0] = nan
-                pending_trade_tp[0] = nan
-                pending_trade_lot[0] = nan
-                pending_trade_risk_cash[0] = nan
-                pending_trade_setup_day[0] = nan
-                pending_trade_setup_bar[0] = -1.0
-            elif pending_entry_touched:
-                entry[0] = pending_entry_value
-                sl[0] = pending_sl_value
-                tp[0] = pending_tp_value
-                side[0] = pending_side_value
-                trade_lot[0] = pending_trade_lot[0]
-                trade_risk_cash[0] = pending_trade_risk_cash[0]
-                original_risk_distance[0] = abs(pending_entry_value - pending_sl_value)
-                favorable_extreme[0] = pending_entry_value
-                trail_candidate[0] = nan
-                trail_confirm_count[0] = 0.0
-                trail_stage[0] = 0.0
-                trail_last_update_bar[0] = -1.0
-                early_exit_warned[0] = 0.0
-                entry_count[0] = 1.0
+            pending_mid_value = pending_mid_entry[0]
+            midpoint_touched = (
+                self.low[0] <= pending_mid_value
+                if pending_side_value == 1.0 else
+                self.high[0] >= pending_mid_value
+            )
+            pending_sl_touched = (
+                self.low[0] <= sl[0]
+                if pending_side_value == 1.0 else
+                self.high[0] >= sl[0]
+            )
+            pending_tp_touched = (
+                self.high[0] >= tp[0]
+                if pending_side_value == 1.0 else
+                self.low[0] <= tp[0]
+            )
+            # If SL/TP is hit before midpoint fill, cancel the remaining leg.
+            # This order is resolved after early-leg exits below as well.
+            if midpoint_touched and not (pending_sl_touched or pending_tp_touched):
+                mid_leg_active[0] = 1.0
+                mid_leg_lot[0] = pending_trade_lot[0]
+                entry_count[0] = 2.0
                 last_entry_bar[0] = float(self.bar_index)
-                last_entry_price[0] = pending_entry_value
-                entry_label_time[0] = self.time[0]
+                last_entry_price[0] = pending_mid_value
                 if pending_trade_setup_day[0] == self._selected_report_day_key:
                     report_active_trades[0] = report_active_trades[0] + 1.0
                     report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
-
-                # Show ACTIVE on the exact candle where the pending entry triggers.
-                active_status_text = (
-                    'ACTIVE | LOT ' + str(round(pending_trade_lot[0], 2))
-                )
                 self.chart.draw(
                     LabelAbs(
-                        active_status_text,
-                        AbsolutePosition(self.time[0], pending_entry_value),
+                        'MID ACTIVE | LOT ' + str(round(mid_leg_lot[0], 2)),
+                        AbsolutePosition(self.time[0], pending_mid_value),
                         font_size=10,
                         text_color=color.BLACK,
                         bg_color=color.TRANSPARENT
                     )
                 )
-
                 pending_trade_side[0] = 0.0
                 pending_trade_entry[0] = nan
                 pending_trade_sl[0] = nan
@@ -1608,6 +1583,7 @@ class Main(MainContext):
                 pending_trade_risk_cash[0] = nan
                 pending_trade_setup_day[0] = nan
                 pending_trade_setup_bar[0] = -1.0
+                pending_mid_entry[0] = nan
 
         if self.is_closed_bar:
 
@@ -1618,101 +1594,63 @@ class Main(MainContext):
             # ================================================
 
             exit_now = False
-
-            if (
+            manual_exit_now = (
                 side[0] != 0.0
                 and self.manual_exit_bar_index >= 0
                 and self.bar_index == self.manual_exit_bar_index
-            ):
-                exit_now = True
-
-            if not exit_now:
-
-                if side[0] == 1.0:
-                    report_hit_sl = self.low[0] <= sl[0]
-                    report_hit_tp = self.high[0] >= tp[0]
-                    if report_hit_sl or report_hit_tp:
-                        exit_now = True
-
-                elif side[0] == -1.0:
-                    report_hit_sl = self.high[0] >= sl[0]
-                    report_hit_tp = self.low[0] <= tp[0]
-                    if report_hit_sl or report_hit_tp:
-                        exit_now = True
-
-            # A stop counts as a trailing-SL hit only after the adaptive
-            # trailing manager has actually moved the original stop level.
-            report_hit_trailing_sl = (
-                report_hit_sl and trail_last_update_bar[0] >= 0.0
             )
+            if manual_exit_now:
+                exit_now = True
+            elif side[0] == 1.0:
+                report_hit_sl = self.low[0] <= sl[0]
+                report_hit_tp = self.high[0] >= tp[0]
+                exit_now = report_hit_sl or report_hit_tp
+            elif side[0] == -1.0:
+                report_hit_sl = self.high[0] >= sl[0]
+                report_hit_tp = self.low[0] <= tp[0]
+                exit_now = report_hit_sl or report_hit_tp
+
+            report_hit_trailing_sl = report_hit_sl and trail_last_update_bar[0] >= 0.0
 
             if exit_now:
-
-                # Count only SL/TP exits. Manual exits remain excluded.
                 if report_hit_sl or report_hit_tp:
-
-                    # SL takes priority if SL and TP are both touched
-                    # in the same candle.
-                    if report_hit_sl:
-                        realized_exit_price = sl[0]
-                    else:
-                        realized_exit_price = tp[0]
-
-                    realized_pnl = (
-                        (realized_exit_price - entry[0])
-                        * side[0]
-                        * self.contract_size
-                        * trade_lot[0]
+                    realized_exit_price = sl[0] if report_hit_sl else tp[0]
+                    early_leg_result = (
+                        (realized_exit_price - early_leg_entry[0])
+                        * side[0] * self.contract_size * early_leg_lot[0]
+                        if early_leg_closed[0] == 0.0 else 0.0
                     )
-
-                    # ========================================
-                    # DISPLAY ONLY THE FIRST HIT RESULT
-                    # ========================================
-
+                    mid_leg_result = (
+                        (realized_exit_price - midpoint_master_entry[0])
+                        * side[0] * self.contract_size * mid_leg_lot[0]
+                        if mid_leg_active[0] == 1.0 else 0.0
+                    )
+                    realized_pnl = early_leg_result + mid_leg_result
                     result_amount = abs(realized_pnl)
 
                     if report_hit_tp and not report_hit_sl:
-
-                        self.chart.draw(
-                            LabelAbs(
-                                'PROFIT $' + str(round(result_amount, 2)),
-                                AbsolutePosition(self.time[0], tp[0]),
-                                font_size=10,
-                                text_color=color.BLACK,
-                                bg_color=color.TRANSPARENT
-                            )
-                        )
-
+                        self.chart.draw(LabelAbs(
+                            'PROFIT $' + str(round(result_amount, 2)),
+                            AbsolutePosition(self.time[0], tp[0]),
+                            font_size=10, text_color=color.BLACK,
+                            bg_color=color.TRANSPARENT
+                        ))
                     elif report_hit_sl:
+                        exit_label = 'TRAILING SL HIT $' if report_hit_trailing_sl else 'LOSS $'
+                        self.chart.draw(LabelAbs(
+                            exit_label + str(round(result_amount, 2)),
+                            AbsolutePosition(self.time[0], sl[0]),
+                            font_size=10, text_color=color.BLACK,
+                            bg_color=color.TRANSPARENT
+                        ))
 
-                        exit_label = (
-                            'TRAILING SL HIT $' if report_hit_trailing_sl
-                            else 'LOSS $'
-                        )
-                        self.chart.draw(
-                            LabelAbs(
-                                exit_label + str(round(result_amount, 2)),
-                                AbsolutePosition(self.time[0], sl[0]),
-                                font_size=10,
-                                text_color=color.BLACK,
-                                bg_color=color.TRANSPARENT
-                            )
-                        )
-
-                    # Update the protection ledger from this closed active trade only.
-                    # Pending/inactive orders and manual exits are intentionally excluded.
                     if current_ist_day_key == risk_day_key[0]:
                         daily_realized_pnl[0] = daily_realized_pnl[0] + realized_pnl
                         daily_loss_threshold = daily_start_balance[0] * 0.30
-
                         if daily_realized_pnl[0] <= -daily_loss_threshold:
                             reduced_risk_mode[0] = 1.0
                         elif daily_realized_pnl[0] >= 0.0:
                             reduced_risk_mode[0] = 0.0
-
-                    # ========================================
-                    # DAILY / MONTHLY REPORT CALCULATION
-                    # ========================================
 
                     if current_ist_day_key == self._selected_report_day_key:
                         if report_hit_trailing_sl:
@@ -1721,7 +1659,6 @@ class Main(MainContext):
                             report_sl[0] = report_sl[0] + 1.0
                         elif report_hit_tp:
                             report_tp[0] = report_tp[0] + 1.0
-
                         report_net_profit[0] = report_net_profit[0] + realized_pnl
                         report_active_pnl[0] = report_active_pnl[0] + realized_pnl
 
@@ -1730,8 +1667,6 @@ class Main(MainContext):
                         and current_ist_day_key < self._selected_report_month_end_key
                     ):
                         monthly_net_profit[0] = monthly_net_profit[0] + realized_pnl
-
-                        # Store realized P/L against its individual IST calendar day.
                     if current_ist_day_key == self._selected_report_month_start_key + 0.0:
                         monthly_day_01_profit[0] = monthly_day_01_profit[0] + realized_pnl
                     elif current_ist_day_key == self._selected_report_month_start_key + 1.0:
@@ -1796,14 +1731,28 @@ class Main(MainContext):
                         monthly_day_31_profit[0] = monthly_day_31_profit[0] + realized_pnl
 
                 entry[0] = nan
+                early_leg_entry[0] = nan
+                midpoint_master_entry[0] = nan
+                early_leg_lot[0] = nan
+                mid_leg_lot[0] = nan
+                mid_leg_active[0] = 0.0
+                early_leg_closed[0] = 0.0
+                pending_mid_entry[0] = nan
+                pending_early_entry[0] = nan
+                pending_trade_side[0] = 0.0
+                pending_trade_entry[0] = nan
+                pending_trade_sl[0] = nan
+                pending_trade_tp[0] = nan
+                pending_trade_lot[0] = nan
+                pending_trade_risk_cash[0] = nan
+                pending_trade_setup_day[0] = nan
+                pending_trade_setup_bar[0] = -1.0
                 second_entry_price[0] = nan
                 third_entry_price[0] = nan
                 fourth_entry_price[0] = nan
                 fifth_entry_price[0] = nan
-
                 sl[0] = nan
                 tp[0] = nan
-
                 side[0] = 0.0
                 trade_lot[0] = nan
                 trade_risk_cash[0] = nan
@@ -1813,24 +1762,19 @@ class Main(MainContext):
                 trail_confirm_count[0] = 0.0
                 trail_stage[0] = 0.0
                 trail_last_update_bar[0] = -1.0
-
                 entry_count[0] = 0.0
                 last_entry_bar[0] = -1.0
                 last_entry_price[0] = nan
-
                 entry_label_time[0] = nan
                 early_exit_warned[0] = 0.0
-
                 pending_buy[0] = 0.0
                 pending_buy_average[0] = nan
                 pending_buy_low[0] = nan
                 pending_buy_bar[0] = -1.0
-
                 pending_sell[0] = 0.0
                 pending_sell_average[0] = nan
                 pending_sell_high[0] = nan
                 pending_sell_bar[0] = -1.0
-
                 trade_exited = True
 
             # ================================================
@@ -1842,11 +1786,13 @@ class Main(MainContext):
                 self.adaptive_trailing_enabled
                 and self._is_m1_chart
                 and side[0] != 0.0
+                and mid_leg_active[0] == 1.0
                 and self.bar_index > last_entry_bar[0]
                 and original_risk_distance[0] > 0.0
                 and not trade_exited
             ):
                 is_buy_trail = side[0] == 1.0
+                entry[0] = midpoint_master_entry[0]
                 risk_unit = original_risk_distance[0]
                 atr_value = atr14[0]
                 adx_value = adx14[0]
@@ -2059,6 +2005,8 @@ class Main(MainContext):
                                 bg_color=color.TRANSPARENT
                             )
                         )
+
+                entry[0] = early_leg_entry[0]
 
             # ================================================
             # EARLY EXIT WARNING
@@ -2401,81 +2349,88 @@ class Main(MainContext):
                         self.high[6], self.high[7]
                     ])
 
-                    # Original Entry 1 logic: confirmation candle midpoint.
+                    # Midpoint is the master reference for common SL/TP.
                     entry_price = candidate_entry_price
+                    early_price = self.close[0]
 
                     if sell_breakout_pullback_ready:
                         sell_reason = 'BREAKOUT + VOLUME PULLBACK'
 
                     stop_price = recent_high
-
                     entry_stop_buffer = max(
                         candle_range * 0.25,
                         abs(entry_price) * 0.00005
                     )
-
-                    stop_price = max(
-                        stop_price,
-                        entry_price + entry_stop_buffer
-                    )
-
+                    stop_price = max(stop_price, entry_price + entry_stop_buffer)
                     risk = stop_price - entry_price
-                    sl_distance = abs(entry_price - stop_price)
-                    risk_per_one_lot = sl_distance * self.contract_size
-                    calculated_lot = 0.0
-                    calculated_risk_cash = nan
-
-                    if risk_per_one_lot > 0.0 and risk_budget_cash > 0.0:
-                        raw_lot = risk_budget_cash / risk_per_one_lot
-                        calculated_lot = int(raw_lot * 100.0) / 100.0
-                        calculated_risk_cash = (
-                            calculated_lot * risk_per_one_lot
-                        )
+                    mid_distance = abs(entry_price - stop_price)
+                    early_distance = abs(early_price - stop_price)
+                    mid_risk_per_lot = mid_distance * self.contract_size
+                    early_risk_per_lot = early_distance * self.contract_size
+                    early_lot = 0.0
+                    mid_lot = 0.0
+                    early_risk_cash_value = 0.0
+                    mid_risk_cash_value = 0.0
+                    if mid_risk_per_lot > 0.0 and early_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        early_lot = int(((risk_budget_cash * 0.60) / early_risk_per_lot) * 100.0) / 100.0
+                        mid_lot = int(((risk_budget_cash * 0.40) / mid_risk_per_lot) * 100.0) / 100.0
+                        early_risk_cash_value = early_lot * early_risk_per_lot
+                        mid_risk_cash_value = mid_lot * mid_risk_per_lot
 
                     if (
                         risk > 0.0
-                        and sl_distance <= maximum_allowed_sl_distance
-                        and calculated_lot >= 0.01
+                        and mid_distance <= maximum_allowed_sl_distance
+                        and early_distance > 0.0
+                        and early_lot >= 0.01
                     ):
-
                         target_price = entry_price - risk * rr_multiplier
-
-                        # Save the planned trade as pending. It becomes active
-                        # only when a later completed candle reaches entry.
+                        # Early leg executes immediately at confirmation candle close.
+                        entry[0] = early_price
+                        early_leg_entry[0] = early_price
+                        early_leg_lot[0] = early_lot
+                        mid_leg_lot[0] = mid_lot
+                        midpoint_master_entry[0] = entry_price
+                        mid_leg_active[0] = 0.0
+                        early_leg_closed[0] = 0.0
+                        early_leg_pnl[0] = 0.0
+                        mid_leg_pnl[0] = 0.0
+                        setup_risk_budget[0] = risk_budget_cash
+                        sl[0] = stop_price
+                        tp[0] = target_price
+                        side[0] = -1.0
+                        trade_lot[0] = early_lot
+                        trade_risk_cash[0] = early_risk_cash_value + mid_risk_cash_value
+                        original_risk_distance[0] = mid_distance
+                        favorable_extreme[0] = entry_price
+                        trail_candidate[0] = nan
+                        trail_confirm_count[0] = 0.0
+                        trail_stage[0] = 0.0
+                        trail_last_update_bar[0] = -1.0
+                        early_exit_warned[0] = 0.0
+                        entry_count[0] = 1.0
+                        last_entry_bar[0] = float(self.bar_index)
+                        last_entry_price[0] = early_price
+                        entry_label_time[0] = self.time[0]
                         pending_trade_side[0] = -1.0
                         pending_trade_entry[0] = entry_price
+                        pending_mid_entry[0] = entry_price
+                        pending_early_entry[0] = early_price
                         pending_trade_sl[0] = stop_price
                         pending_trade_tp[0] = target_price
-                        pending_trade_lot[0] = calculated_lot
-                        pending_trade_risk_cash[0] = calculated_risk_cash
+                        pending_trade_lot[0] = mid_lot
+                        pending_trade_risk_cash[0] = mid_risk_cash_value
                         pending_trade_setup_day[0] = current_ist_day_key
                         pending_trade_setup_bar[0] = float(self.bar_index)
-
-                        second_entry_price[0] = nan
-                        third_entry_price[0] = nan
-                        fourth_entry_price[0] = nan
-                        fifth_entry_price[0] = nan
-
                         sell_signal = True
 
                         pending_buy[0] = 0.0
                         pending_buy_average[0] = nan
                         pending_buy_low[0] = nan
                         pending_buy_bar[0] = -1.0
-
                         pending_sell[0] = 0.0
                         pending_sell_average[0] = nan
                         pending_sell_high[0] = nan
                         pending_sell_bar[0] = -1.0
-
-                        if not (
-                            self.delete_setup == 'Primary SELL'
-                            and self.bar_index == self.delete_bar_index
-                        ):
-
-                            if self.is_closed_bar:
-
-                                pass
 
                 elif buy_entry_ready:
 
@@ -2486,68 +2441,84 @@ class Main(MainContext):
                         self.low[6], self.low[7]
                     ])
 
-                    # Original Entry 1 logic: confirmation candle midpoint.
+                    # Midpoint is the master reference for common SL/TP.
                     entry_price = candidate_entry_price
+                    early_price = self.close[0]
 
                     if buy_breakout_pullback_ready:
                         buy_reason = 'BREAKOUT + VOLUME PULLBACK'
 
                     stop_price = recent_low
-
                     entry_stop_buffer = max(
                         candle_range * 0.25,
                         abs(entry_price) * 0.00005
                     )
-
-                    stop_price = min(
-                        stop_price,
-                        entry_price - entry_stop_buffer
-                    )
-
+                    stop_price = min(stop_price, entry_price - entry_stop_buffer)
                     risk = entry_price - stop_price
-                    sl_distance = abs(entry_price - stop_price)
-                    risk_per_one_lot = sl_distance * self.contract_size
-                    calculated_lot = 0.0
-                    calculated_risk_cash = nan
-
-                    if risk_per_one_lot > 0.0 and risk_budget_cash > 0.0:
-                        raw_lot = risk_budget_cash / risk_per_one_lot
-                        calculated_lot = int(raw_lot * 100.0) / 100.0
-                        calculated_risk_cash = (
-                            calculated_lot * risk_per_one_lot
-                        )
+                    mid_distance = abs(entry_price - stop_price)
+                    early_distance = abs(early_price - stop_price)
+                    mid_risk_per_lot = mid_distance * self.contract_size
+                    early_risk_per_lot = early_distance * self.contract_size
+                    early_lot = 0.0
+                    mid_lot = 0.0
+                    early_risk_cash_value = 0.0
+                    mid_risk_cash_value = 0.0
+                    if mid_risk_per_lot > 0.0 and early_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        early_lot = int(((risk_budget_cash * 0.60) / early_risk_per_lot) * 100.0) / 100.0
+                        mid_lot = int(((risk_budget_cash * 0.40) / mid_risk_per_lot) * 100.0) / 100.0
+                        early_risk_cash_value = early_lot * early_risk_per_lot
+                        mid_risk_cash_value = mid_lot * mid_risk_per_lot
 
                     if (
                         risk > 0.0
-                        and sl_distance <= maximum_allowed_sl_distance
-                        and calculated_lot >= 0.01
+                        and mid_distance <= maximum_allowed_sl_distance
+                        and early_distance > 0.0
+                        and early_lot >= 0.01
                     ):
-
                         target_price = entry_price + risk * rr_multiplier
-
-                        # Save the planned trade as pending. It becomes active
-                        # only when a later completed candle reaches entry.
+                        # Early leg executes immediately at confirmation candle close.
+                        entry[0] = early_price
+                        early_leg_entry[0] = early_price
+                        early_leg_lot[0] = early_lot
+                        mid_leg_lot[0] = mid_lot
+                        midpoint_master_entry[0] = entry_price
+                        mid_leg_active[0] = 0.0
+                        early_leg_closed[0] = 0.0
+                        early_leg_pnl[0] = 0.0
+                        mid_leg_pnl[0] = 0.0
+                        setup_risk_budget[0] = risk_budget_cash
+                        sl[0] = stop_price
+                        tp[0] = target_price
+                        side[0] = 1.0
+                        trade_lot[0] = early_lot
+                        trade_risk_cash[0] = early_risk_cash_value + mid_risk_cash_value
+                        original_risk_distance[0] = mid_distance
+                        favorable_extreme[0] = entry_price
+                        trail_candidate[0] = nan
+                        trail_confirm_count[0] = 0.0
+                        trail_stage[0] = 0.0
+                        trail_last_update_bar[0] = -1.0
+                        early_exit_warned[0] = 0.0
+                        entry_count[0] = 1.0
+                        last_entry_bar[0] = float(self.bar_index)
+                        last_entry_price[0] = early_price
+                        entry_label_time[0] = self.time[0]
                         pending_trade_side[0] = 1.0
                         pending_trade_entry[0] = entry_price
+                        pending_mid_entry[0] = entry_price
+                        pending_early_entry[0] = early_price
                         pending_trade_sl[0] = stop_price
                         pending_trade_tp[0] = target_price
-                        pending_trade_lot[0] = calculated_lot
-                        pending_trade_risk_cash[0] = calculated_risk_cash
+                        pending_trade_lot[0] = mid_lot
+                        pending_trade_risk_cash[0] = mid_risk_cash_value
                         pending_trade_setup_day[0] = current_ist_day_key
                         pending_trade_setup_bar[0] = float(self.bar_index)
-
-                        second_entry_price[0] = nan
-                        third_entry_price[0] = nan
-                        fourth_entry_price[0] = nan
-                        fifth_entry_price[0] = nan
-
                         buy_signal = True
 
                         pending_buy[0] = 0.0
                         pending_buy_average[0] = nan
                         pending_buy_low[0] = nan
                         pending_buy_bar[0] = -1.0
-
                         pending_sell[0] = 0.0
                         pending_sell_average[0] = nan
                         pending_sell_high[0] = nan
@@ -3084,18 +3055,10 @@ class Main(MainContext):
         plot_sl_value = sl[0]
         plot_tp_value = tp[0]
 
-        if pending_trade_side[0] != 0.0:
-            # Do not draw the projection over the setup candle itself.
-            # Begin the Entry / SL / TP levels on the very next candle,
-            # after the setup candle has fully closed.
-            if self.bar_index > pending_trade_setup_bar[0]:
-                plot_entry_value = pending_trade_entry[0]
-                plot_sl_value = pending_trade_sl[0]
-                plot_tp_value = pending_trade_tp[0]
-            else:
-                plot_entry_value = nan
-                plot_sl_value = nan
-                plot_tp_value = nan
+        if side[0] != 0.0:
+            plot_entry_value = midpoint_master_entry[0]
+            plot_sl_value = sl[0]
+            plot_tp_value = tp[0]
 
         # ====================================================
         # OUTPUT
