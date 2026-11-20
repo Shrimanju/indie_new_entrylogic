@@ -2366,6 +2366,23 @@ class Main(MainContext):
                     early_distance = abs(early_price - stop_price)
                     mid_risk_per_lot = mid_distance * self.contract_size
                     early_risk_per_lot = early_distance * self.contract_size
+
+                    # Count the original midpoint-valid signal independently
+                    # from the new early-leg sizing and execution checks.
+                    midpoint_signal_lot = 0.0
+                    if mid_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        midpoint_signal_lot = int(
+                            (risk_budget_cash / mid_risk_per_lot) * 100.0
+                        ) / 100.0
+                    if (
+                        risk > 0.0
+                        and mid_distance <= maximum_allowed_sl_distance
+                        and midpoint_signal_lot >= 0.01
+                    ):
+                        sell_signal = True
+                        if current_ist_day_key == self._selected_report_day_key:
+                            report_trades[0] = report_trades[0] + 1.0
+
                     early_lot = 0.0
                     mid_lot = 0.0
                     early_risk_cash_value = 0.0
@@ -2414,7 +2431,6 @@ class Main(MainContext):
                         # The midpoint leg is optional and must not add another trade.
                         if current_ist_day_key == self._selected_report_day_key:
                             report_active_trades[0] = report_active_trades[0] + 1.0
-                            report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
                         pending_trade_side[0] = -1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
@@ -2463,6 +2479,23 @@ class Main(MainContext):
                     early_distance = abs(early_price - stop_price)
                     mid_risk_per_lot = mid_distance * self.contract_size
                     early_risk_per_lot = early_distance * self.contract_size
+
+                    # Count the original midpoint-valid signal independently
+                    # from the new early-leg sizing and execution checks.
+                    midpoint_signal_lot = 0.0
+                    if mid_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        midpoint_signal_lot = int(
+                            (risk_budget_cash / mid_risk_per_lot) * 100.0
+                        ) / 100.0
+                    if (
+                        risk > 0.0
+                        and mid_distance <= maximum_allowed_sl_distance
+                        and midpoint_signal_lot >= 0.01
+                    ):
+                        buy_signal = True
+                        if current_ist_day_key == self._selected_report_day_key:
+                            report_trades[0] = report_trades[0] + 1.0
+
                     early_lot = 0.0
                     mid_lot = 0.0
                     early_risk_cash_value = 0.0
@@ -2511,7 +2544,6 @@ class Main(MainContext):
                         # The midpoint leg is optional and must not add another trade.
                         if current_ist_day_key == self._selected_report_day_key:
                             report_active_trades[0] = report_active_trades[0] + 1.0
-                            report_trades[0] = report_active_trades[0] + report_inactive_trades[0]
                         pending_trade_side[0] = 1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
@@ -2778,8 +2810,9 @@ class Main(MainContext):
             tp_count = int(report_tp[0])
             trailing_sl_count = int(report_trailing_sl[0])
             active_trades = int(report_active_trades[0])
-            inactive_trades = int(report_inactive_trades[0])
-            total_trades = active_trades + inactive_trades
+            # Inactive = valid original midpoint signals with no executed early leg.
+            total_trades = int(report_trades[0])
+            inactive_trades = max(0, total_trades - active_trades)
             total_exits = sl_count + tp_count + trailing_sl_count
 
             win_rate = 0.0
