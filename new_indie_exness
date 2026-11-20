@@ -418,13 +418,129 @@ class Main(MainContext):
         pending_trade_setup_day = MutSeriesF.new(init=nan)
         pending_trade_setup_bar = MutSeriesF.new(init=-1.0)
 
-        # Independent original-midpoint report tracker, separate from live execution.
-        count_pending_side = MutSeriesF.new(init=0.0)
-        count_pending_entry = MutSeriesF.new(init=nan)
-        count_pending_sl = MutSeriesF.new(init=nan)
-        count_pending_tp = MutSeriesF.new(init=nan)
-        count_pending_day = MutSeriesF.new(init=nan)
-        count_pending_bar = MutSeriesF.new(init=-1.0)
+        # Independent multi-slot original-midpoint report tracker.
+        # Multiple unresolved setups can coexist with a live early leg.
+        count_1_side = MutSeriesF.new(init=0.0)
+        count_1_entry = MutSeriesF.new(init=nan)
+        count_1_sl = MutSeriesF.new(init=nan)
+        count_1_tp = MutSeriesF.new(init=nan)
+        count_1_day = MutSeriesF.new(init=nan)
+        count_1_bar = MutSeriesF.new(init=-1.0)
+        count_2_side = MutSeriesF.new(init=0.0)
+        count_2_entry = MutSeriesF.new(init=nan)
+        count_2_sl = MutSeriesF.new(init=nan)
+        count_2_tp = MutSeriesF.new(init=nan)
+        count_2_day = MutSeriesF.new(init=nan)
+        count_2_bar = MutSeriesF.new(init=-1.0)
+        count_3_side = MutSeriesF.new(init=0.0)
+        count_3_entry = MutSeriesF.new(init=nan)
+        count_3_sl = MutSeriesF.new(init=nan)
+        count_3_tp = MutSeriesF.new(init=nan)
+        count_3_day = MutSeriesF.new(init=nan)
+        count_3_bar = MutSeriesF.new(init=-1.0)
+        count_4_side = MutSeriesF.new(init=0.0)
+        count_4_entry = MutSeriesF.new(init=nan)
+        count_4_sl = MutSeriesF.new(init=nan)
+        count_4_tp = MutSeriesF.new(init=nan)
+        count_4_day = MutSeriesF.new(init=nan)
+        count_4_bar = MutSeriesF.new(init=-1.0)
+        count_5_side = MutSeriesF.new(init=0.0)
+        count_5_entry = MutSeriesF.new(init=nan)
+        count_5_sl = MutSeriesF.new(init=nan)
+        count_5_tp = MutSeriesF.new(init=nan)
+        count_5_day = MutSeriesF.new(init=nan)
+        count_5_bar = MutSeriesF.new(init=-1.0)
+        count_6_side = MutSeriesF.new(init=0.0)
+        count_6_entry = MutSeriesF.new(init=nan)
+        count_6_sl = MutSeriesF.new(init=nan)
+        count_6_tp = MutSeriesF.new(init=nan)
+        count_6_day = MutSeriesF.new(init=nan)
+        count_6_bar = MutSeriesF.new(init=-1.0)
+        count_7_side = MutSeriesF.new(init=0.0)
+        count_7_entry = MutSeriesF.new(init=nan)
+        count_7_sl = MutSeriesF.new(init=nan)
+        count_7_tp = MutSeriesF.new(init=nan)
+        count_7_day = MutSeriesF.new(init=nan)
+        count_7_bar = MutSeriesF.new(init=-1.0)
+        count_8_side = MutSeriesF.new(init=0.0)
+        count_8_entry = MutSeriesF.new(init=nan)
+        count_8_sl = MutSeriesF.new(init=nan)
+        count_8_tp = MutSeriesF.new(init=nan)
+        count_8_day = MutSeriesF.new(init=nan)
+        count_8_bar = MutSeriesF.new(init=-1.0)
+        count_9_side = MutSeriesF.new(init=0.0)
+        count_9_entry = MutSeriesF.new(init=nan)
+        count_9_sl = MutSeriesF.new(init=nan)
+        count_9_tp = MutSeriesF.new(init=nan)
+        count_9_day = MutSeriesF.new(init=nan)
+        count_9_bar = MutSeriesF.new(init=-1.0)
+        count_10_side = MutSeriesF.new(init=0.0)
+        count_10_entry = MutSeriesF.new(init=nan)
+        count_10_sl = MutSeriesF.new(init=nan)
+        count_10_tp = MutSeriesF.new(init=nan)
+        count_10_day = MutSeriesF.new(init=nan)
+        count_10_bar = MutSeriesF.new(init=-1.0)
+        count_11_side = MutSeriesF.new(init=0.0)
+        count_11_entry = MutSeriesF.new(init=nan)
+        count_11_sl = MutSeriesF.new(init=nan)
+        count_11_tp = MutSeriesF.new(init=nan)
+        count_11_day = MutSeriesF.new(init=nan)
+        count_11_bar = MutSeriesF.new(init=-1.0)
+        count_12_side = MutSeriesF.new(init=0.0)
+        count_12_entry = MutSeriesF.new(init=nan)
+        count_12_sl = MutSeriesF.new(init=nan)
+        count_12_tp = MutSeriesF.new(init=nan)
+        count_12_day = MutSeriesF.new(init=nan)
+        count_12_bar = MutSeriesF.new(init=-1.0)
+        count_13_side = MutSeriesF.new(init=0.0)
+        count_13_entry = MutSeriesF.new(init=nan)
+        count_13_sl = MutSeriesF.new(init=nan)
+        count_13_tp = MutSeriesF.new(init=nan)
+        count_13_day = MutSeriesF.new(init=nan)
+        count_13_bar = MutSeriesF.new(init=-1.0)
+        count_14_side = MutSeriesF.new(init=0.0)
+        count_14_entry = MutSeriesF.new(init=nan)
+        count_14_sl = MutSeriesF.new(init=nan)
+        count_14_tp = MutSeriesF.new(init=nan)
+        count_14_day = MutSeriesF.new(init=nan)
+        count_14_bar = MutSeriesF.new(init=-1.0)
+        count_15_side = MutSeriesF.new(init=0.0)
+        count_15_entry = MutSeriesF.new(init=nan)
+        count_15_sl = MutSeriesF.new(init=nan)
+        count_15_tp = MutSeriesF.new(init=nan)
+        count_15_day = MutSeriesF.new(init=nan)
+        count_15_bar = MutSeriesF.new(init=-1.0)
+        count_16_side = MutSeriesF.new(init=0.0)
+        count_16_entry = MutSeriesF.new(init=nan)
+        count_16_sl = MutSeriesF.new(init=nan)
+        count_16_tp = MutSeriesF.new(init=nan)
+        count_16_day = MutSeriesF.new(init=nan)
+        count_16_bar = MutSeriesF.new(init=-1.0)
+        count_17_side = MutSeriesF.new(init=0.0)
+        count_17_entry = MutSeriesF.new(init=nan)
+        count_17_sl = MutSeriesF.new(init=nan)
+        count_17_tp = MutSeriesF.new(init=nan)
+        count_17_day = MutSeriesF.new(init=nan)
+        count_17_bar = MutSeriesF.new(init=-1.0)
+        count_18_side = MutSeriesF.new(init=0.0)
+        count_18_entry = MutSeriesF.new(init=nan)
+        count_18_sl = MutSeriesF.new(init=nan)
+        count_18_tp = MutSeriesF.new(init=nan)
+        count_18_day = MutSeriesF.new(init=nan)
+        count_18_bar = MutSeriesF.new(init=-1.0)
+        count_19_side = MutSeriesF.new(init=0.0)
+        count_19_entry = MutSeriesF.new(init=nan)
+        count_19_sl = MutSeriesF.new(init=nan)
+        count_19_tp = MutSeriesF.new(init=nan)
+        count_19_day = MutSeriesF.new(init=nan)
+        count_19_bar = MutSeriesF.new(init=-1.0)
+        count_20_side = MutSeriesF.new(init=0.0)
+        count_20_entry = MutSeriesF.new(init=nan)
+        count_20_sl = MutSeriesF.new(init=nan)
+        count_20_tp = MutSeriesF.new(init=nan)
+        count_20_day = MutSeriesF.new(init=nan)
+        count_20_bar = MutSeriesF.new(init=-1.0)
+
 
         entry_label_time = MutSeriesF.new(init=nan)
         early_exit_warned = MutSeriesF.new(init=0.0)
@@ -569,12 +685,126 @@ class Main(MainContext):
             pending_trade_setup_day[0] = pending_trade_setup_day[1]
             pending_trade_setup_bar[0] = pending_trade_setup_bar[1]
 
-            count_pending_side[0] = count_pending_side[1]
-            count_pending_entry[0] = count_pending_entry[1]
-            count_pending_sl[0] = count_pending_sl[1]
-            count_pending_tp[0] = count_pending_tp[1]
-            count_pending_day[0] = count_pending_day[1]
-            count_pending_bar[0] = count_pending_bar[1]
+            count_1_side[0] = count_1_side[1]
+            count_1_entry[0] = count_1_entry[1]
+            count_1_sl[0] = count_1_sl[1]
+            count_1_tp[0] = count_1_tp[1]
+            count_1_day[0] = count_1_day[1]
+            count_1_bar[0] = count_1_bar[1]
+            count_2_side[0] = count_2_side[1]
+            count_2_entry[0] = count_2_entry[1]
+            count_2_sl[0] = count_2_sl[1]
+            count_2_tp[0] = count_2_tp[1]
+            count_2_day[0] = count_2_day[1]
+            count_2_bar[0] = count_2_bar[1]
+            count_3_side[0] = count_3_side[1]
+            count_3_entry[0] = count_3_entry[1]
+            count_3_sl[0] = count_3_sl[1]
+            count_3_tp[0] = count_3_tp[1]
+            count_3_day[0] = count_3_day[1]
+            count_3_bar[0] = count_3_bar[1]
+            count_4_side[0] = count_4_side[1]
+            count_4_entry[0] = count_4_entry[1]
+            count_4_sl[0] = count_4_sl[1]
+            count_4_tp[0] = count_4_tp[1]
+            count_4_day[0] = count_4_day[1]
+            count_4_bar[0] = count_4_bar[1]
+            count_5_side[0] = count_5_side[1]
+            count_5_entry[0] = count_5_entry[1]
+            count_5_sl[0] = count_5_sl[1]
+            count_5_tp[0] = count_5_tp[1]
+            count_5_day[0] = count_5_day[1]
+            count_5_bar[0] = count_5_bar[1]
+            count_6_side[0] = count_6_side[1]
+            count_6_entry[0] = count_6_entry[1]
+            count_6_sl[0] = count_6_sl[1]
+            count_6_tp[0] = count_6_tp[1]
+            count_6_day[0] = count_6_day[1]
+            count_6_bar[0] = count_6_bar[1]
+            count_7_side[0] = count_7_side[1]
+            count_7_entry[0] = count_7_entry[1]
+            count_7_sl[0] = count_7_sl[1]
+            count_7_tp[0] = count_7_tp[1]
+            count_7_day[0] = count_7_day[1]
+            count_7_bar[0] = count_7_bar[1]
+            count_8_side[0] = count_8_side[1]
+            count_8_entry[0] = count_8_entry[1]
+            count_8_sl[0] = count_8_sl[1]
+            count_8_tp[0] = count_8_tp[1]
+            count_8_day[0] = count_8_day[1]
+            count_8_bar[0] = count_8_bar[1]
+            count_9_side[0] = count_9_side[1]
+            count_9_entry[0] = count_9_entry[1]
+            count_9_sl[0] = count_9_sl[1]
+            count_9_tp[0] = count_9_tp[1]
+            count_9_day[0] = count_9_day[1]
+            count_9_bar[0] = count_9_bar[1]
+            count_10_side[0] = count_10_side[1]
+            count_10_entry[0] = count_10_entry[1]
+            count_10_sl[0] = count_10_sl[1]
+            count_10_tp[0] = count_10_tp[1]
+            count_10_day[0] = count_10_day[1]
+            count_10_bar[0] = count_10_bar[1]
+            count_11_side[0] = count_11_side[1]
+            count_11_entry[0] = count_11_entry[1]
+            count_11_sl[0] = count_11_sl[1]
+            count_11_tp[0] = count_11_tp[1]
+            count_11_day[0] = count_11_day[1]
+            count_11_bar[0] = count_11_bar[1]
+            count_12_side[0] = count_12_side[1]
+            count_12_entry[0] = count_12_entry[1]
+            count_12_sl[0] = count_12_sl[1]
+            count_12_tp[0] = count_12_tp[1]
+            count_12_day[0] = count_12_day[1]
+            count_12_bar[0] = count_12_bar[1]
+            count_13_side[0] = count_13_side[1]
+            count_13_entry[0] = count_13_entry[1]
+            count_13_sl[0] = count_13_sl[1]
+            count_13_tp[0] = count_13_tp[1]
+            count_13_day[0] = count_13_day[1]
+            count_13_bar[0] = count_13_bar[1]
+            count_14_side[0] = count_14_side[1]
+            count_14_entry[0] = count_14_entry[1]
+            count_14_sl[0] = count_14_sl[1]
+            count_14_tp[0] = count_14_tp[1]
+            count_14_day[0] = count_14_day[1]
+            count_14_bar[0] = count_14_bar[1]
+            count_15_side[0] = count_15_side[1]
+            count_15_entry[0] = count_15_entry[1]
+            count_15_sl[0] = count_15_sl[1]
+            count_15_tp[0] = count_15_tp[1]
+            count_15_day[0] = count_15_day[1]
+            count_15_bar[0] = count_15_bar[1]
+            count_16_side[0] = count_16_side[1]
+            count_16_entry[0] = count_16_entry[1]
+            count_16_sl[0] = count_16_sl[1]
+            count_16_tp[0] = count_16_tp[1]
+            count_16_day[0] = count_16_day[1]
+            count_16_bar[0] = count_16_bar[1]
+            count_17_side[0] = count_17_side[1]
+            count_17_entry[0] = count_17_entry[1]
+            count_17_sl[0] = count_17_sl[1]
+            count_17_tp[0] = count_17_tp[1]
+            count_17_day[0] = count_17_day[1]
+            count_17_bar[0] = count_17_bar[1]
+            count_18_side[0] = count_18_side[1]
+            count_18_entry[0] = count_18_entry[1]
+            count_18_sl[0] = count_18_sl[1]
+            count_18_tp[0] = count_18_tp[1]
+            count_18_day[0] = count_18_day[1]
+            count_18_bar[0] = count_18_bar[1]
+            count_19_side[0] = count_19_side[1]
+            count_19_entry[0] = count_19_entry[1]
+            count_19_sl[0] = count_19_sl[1]
+            count_19_tp[0] = count_19_tp[1]
+            count_19_day[0] = count_19_day[1]
+            count_19_bar[0] = count_19_bar[1]
+            count_20_side[0] = count_20_side[1]
+            count_20_entry[0] = count_20_entry[1]
+            count_20_sl[0] = count_20_sl[1]
+            count_20_tp[0] = count_20_tp[1]
+            count_20_day[0] = count_20_day[1]
+            count_20_bar[0] = count_20_bar[1]
 
             entry_label_time[0] = entry_label_time[1]
             early_exit_warned[0] = early_exit_warned[1]
@@ -720,12 +950,126 @@ class Main(MainContext):
             pending_trade_risk_cash[0] = nan
             pending_trade_setup_day[0] = nan
             pending_trade_setup_bar[0] = -1.0
-            count_pending_side[0] = 0.0
-            count_pending_entry[0] = nan
-            count_pending_sl[0] = nan
-            count_pending_tp[0] = nan
-            count_pending_day[0] = nan
-            count_pending_bar[0] = -1.0
+            count_1_side[0] = 0.0
+            count_1_entry[0] = nan
+            count_1_sl[0] = nan
+            count_1_tp[0] = nan
+            count_1_day[0] = nan
+            count_1_bar[0] = -1.0
+            count_2_side[0] = 0.0
+            count_2_entry[0] = nan
+            count_2_sl[0] = nan
+            count_2_tp[0] = nan
+            count_2_day[0] = nan
+            count_2_bar[0] = -1.0
+            count_3_side[0] = 0.0
+            count_3_entry[0] = nan
+            count_3_sl[0] = nan
+            count_3_tp[0] = nan
+            count_3_day[0] = nan
+            count_3_bar[0] = -1.0
+            count_4_side[0] = 0.0
+            count_4_entry[0] = nan
+            count_4_sl[0] = nan
+            count_4_tp[0] = nan
+            count_4_day[0] = nan
+            count_4_bar[0] = -1.0
+            count_5_side[0] = 0.0
+            count_5_entry[0] = nan
+            count_5_sl[0] = nan
+            count_5_tp[0] = nan
+            count_5_day[0] = nan
+            count_5_bar[0] = -1.0
+            count_6_side[0] = 0.0
+            count_6_entry[0] = nan
+            count_6_sl[0] = nan
+            count_6_tp[0] = nan
+            count_6_day[0] = nan
+            count_6_bar[0] = -1.0
+            count_7_side[0] = 0.0
+            count_7_entry[0] = nan
+            count_7_sl[0] = nan
+            count_7_tp[0] = nan
+            count_7_day[0] = nan
+            count_7_bar[0] = -1.0
+            count_8_side[0] = 0.0
+            count_8_entry[0] = nan
+            count_8_sl[0] = nan
+            count_8_tp[0] = nan
+            count_8_day[0] = nan
+            count_8_bar[0] = -1.0
+            count_9_side[0] = 0.0
+            count_9_entry[0] = nan
+            count_9_sl[0] = nan
+            count_9_tp[0] = nan
+            count_9_day[0] = nan
+            count_9_bar[0] = -1.0
+            count_10_side[0] = 0.0
+            count_10_entry[0] = nan
+            count_10_sl[0] = nan
+            count_10_tp[0] = nan
+            count_10_day[0] = nan
+            count_10_bar[0] = -1.0
+            count_11_side[0] = 0.0
+            count_11_entry[0] = nan
+            count_11_sl[0] = nan
+            count_11_tp[0] = nan
+            count_11_day[0] = nan
+            count_11_bar[0] = -1.0
+            count_12_side[0] = 0.0
+            count_12_entry[0] = nan
+            count_12_sl[0] = nan
+            count_12_tp[0] = nan
+            count_12_day[0] = nan
+            count_12_bar[0] = -1.0
+            count_13_side[0] = 0.0
+            count_13_entry[0] = nan
+            count_13_sl[0] = nan
+            count_13_tp[0] = nan
+            count_13_day[0] = nan
+            count_13_bar[0] = -1.0
+            count_14_side[0] = 0.0
+            count_14_entry[0] = nan
+            count_14_sl[0] = nan
+            count_14_tp[0] = nan
+            count_14_day[0] = nan
+            count_14_bar[0] = -1.0
+            count_15_side[0] = 0.0
+            count_15_entry[0] = nan
+            count_15_sl[0] = nan
+            count_15_tp[0] = nan
+            count_15_day[0] = nan
+            count_15_bar[0] = -1.0
+            count_16_side[0] = 0.0
+            count_16_entry[0] = nan
+            count_16_sl[0] = nan
+            count_16_tp[0] = nan
+            count_16_day[0] = nan
+            count_16_bar[0] = -1.0
+            count_17_side[0] = 0.0
+            count_17_entry[0] = nan
+            count_17_sl[0] = nan
+            count_17_tp[0] = nan
+            count_17_day[0] = nan
+            count_17_bar[0] = -1.0
+            count_18_side[0] = 0.0
+            count_18_entry[0] = nan
+            count_18_sl[0] = nan
+            count_18_tp[0] = nan
+            count_18_day[0] = nan
+            count_18_bar[0] = -1.0
+            count_19_side[0] = 0.0
+            count_19_entry[0] = nan
+            count_19_sl[0] = nan
+            count_19_tp[0] = nan
+            count_19_day[0] = nan
+            count_19_bar[0] = -1.0
+            count_20_side[0] = 0.0
+            count_20_entry[0] = nan
+            count_20_sl[0] = nan
+            count_20_tp[0] = nan
+            count_20_day[0] = nan
+            count_20_bar[0] = -1.0
             entry_label_time[0] = nan
             early_exit_warned[0] = 0.0
             report_trades[0] = 0.0
@@ -2342,100 +2686,979 @@ class Main(MainContext):
                 self.account_capital * total_risk_percent / 100.0
             )
 
-            # Independent original-midpoint setup counter. This runs even
-            # while another early leg is open and never changes live trade state.
-            if self.is_closed_bar and count_pending_side[0] != 0.0:
-                count_side_value = count_pending_side[0]
-                count_entry_touched = (
-                    self.low[0] <= count_pending_entry[0]
-                    if count_side_value == 1.0 else
-                    self.high[0] >= count_pending_entry[0]
-                )
-                count_sl_touched = (
-                    self.low[0] <= count_pending_sl[0]
-                    if count_side_value == 1.0 else
-                    self.high[0] >= count_pending_sl[0]
-                )
-                count_tp_touched = (
-                    self.high[0] >= count_pending_tp[0]
-                    if count_side_value == 1.0 else
-                    self.low[0] <= count_pending_tp[0]
-                )
-                if self.bar_index > count_pending_bar[0]:
-                    # SL/TP wins over midpoint on the same candle: INACTIVE.
-                    if count_sl_touched or count_tp_touched:
-                        if count_pending_day[0] == self._selected_report_day_key:
+            # Independent original-midpoint setup counter.
+            # Resolve every outstanding setup independently before arming this bar's setup.
+            # SL/TP wins over midpoint if both are touched on the same candle.
+            if self.is_closed_bar:
+                if count_1_side[0] != 0.0 and self.bar_index > count_1_bar[0]:
+                    count_1_entry_touched = (
+                        self.low[0] <= count_1_entry[0]
+                        if count_1_side[0] == 1.0 else
+                        self.high[0] >= count_1_entry[0]
+                    )
+                    count_1_sl_touched = (
+                        self.low[0] <= count_1_sl[0]
+                        if count_1_side[0] == 1.0 else
+                        self.high[0] >= count_1_sl[0]
+                    )
+                    count_1_tp_touched = (
+                        self.high[0] >= count_1_tp[0]
+                        if count_1_side[0] == 1.0 else
+                        self.low[0] <= count_1_tp[0]
+                    )
+                    if count_1_sl_touched or count_1_tp_touched:
+                        if count_1_day[0] == self._selected_report_day_key:
                             report_inactive_trades[0] = report_inactive_trades[0] + 1.0
-                        count_pending_side[0] = 0.0
-                        count_pending_entry[0] = nan
-                        count_pending_sl[0] = nan
-                        count_pending_tp[0] = nan
-                        count_pending_day[0] = nan
-                        count_pending_bar[0] = -1.0
-                    elif count_entry_touched:
-                        if count_pending_day[0] == self._selected_report_day_key:
+                        count_1_side[0] = 0.0
+                        count_1_entry[0] = nan
+                        count_1_sl[0] = nan
+                        count_1_tp[0] = nan
+                        count_1_day[0] = nan
+                        count_1_bar[0] = -1.0
+                    elif count_1_entry_touched:
+                        if count_1_day[0] == self._selected_report_day_key:
                             report_active_trades[0] = report_active_trades[0] + 1.0
-                        count_pending_side[0] = 0.0
-                        count_pending_entry[0] = nan
-                        count_pending_sl[0] = nan
-                        count_pending_tp[0] = nan
-                        count_pending_day[0] = nan
-                        count_pending_bar[0] = -1.0
+                        count_1_side[0] = 0.0
+                        count_1_entry[0] = nan
+                        count_1_sl[0] = nan
+                        count_1_tp[0] = nan
+                        count_1_day[0] = nan
+                        count_1_bar[0] = -1.0
 
-            # Arm one independent pending setup whenever the counter is free.
-            # It may coexist with the current execution engine's active position.
-            if (
-                self.is_closed_bar
-                and count_pending_side[0] == 0.0
-                and not rr_setting_changed
-            ):
-                count_sell_ready = sell_condition or sell_breakout_pullback_ready
-                count_buy_ready = buy_condition or buy_breakout_pullback_ready
+                #                if count_2_side[0] != 0.0 and self.bar_index > count_2_bar[0]:
+                    count_2_entry_touched = (
+                        self.low[0] <= count_2_entry[0]
+                        if count_2_side[0] == 1.0 else
+                        self.high[0] >= count_2_entry[0]
+                    )
+                    count_2_sl_touched = (
+                        self.low[0] <= count_2_sl[0]
+                        if count_2_side[0] == 1.0 else
+                        self.high[0] >= count_2_sl[0]
+                    )
+                    count_2_tp_touched = (
+                        self.high[0] >= count_2_tp[0]
+                        if count_2_side[0] == 1.0 else
+                        self.low[0] <= count_2_tp[0]
+                    )
+                    if count_2_sl_touched or count_2_tp_touched:
+                        if count_2_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_2_side[0] = 0.0
+                        count_2_entry[0] = nan
+                        count_2_sl[0] = nan
+                        count_2_tp[0] = nan
+                        count_2_day[0] = nan
+                        count_2_bar[0] = -1.0
+                    elif count_2_entry_touched:
+                        if count_2_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_2_side[0] = 0.0
+                        count_2_entry[0] = nan
+                        count_2_sl[0] = nan
+                        count_2_tp[0] = nan
+                        count_2_day[0] = nan
+                        count_2_bar[0] = -1.0
 
-                if count_sell_ready and not count_buy_ready:
-                    count_mid_entry = candidate_entry_price
-                    count_recent_high = max([
-                        self.high[0], self.high[1], self.high[2], self.high[3],
-                        self.high[4], self.high[5], self.high[6], self.high[7]
-                    ])
-                    count_stop_buffer = max(candle_range * 0.25, abs(count_mid_entry) * 0.00005)
-                    count_stop = max(count_recent_high, count_mid_entry + count_stop_buffer)
-                    count_risk = count_stop - count_mid_entry
-                    count_distance = abs(count_mid_entry - count_stop)
-                    count_risk_per_lot = count_distance * self.contract_size
-                    count_lot = 0.0
-                    if count_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        count_lot = int((risk_budget_cash / count_risk_per_lot) * 100.0) / 100.0
-                    if count_risk > 0.0 and count_distance <= maximum_allowed_sl_distance and count_lot >= 0.01:
-                        count_pending_side[0] = -1.0
-                        count_pending_entry[0] = count_mid_entry
-                        count_pending_sl[0] = count_stop
-                        count_pending_tp[0] = count_mid_entry - count_risk * rr_multiplier
-                        count_pending_day[0] = current_ist_day_key
-                        count_pending_bar[0] = float(self.bar_index)
+                #                if count_3_side[0] != 0.0 and self.bar_index > count_3_bar[0]:
+                    count_3_entry_touched = (
+                        self.low[0] <= count_3_entry[0]
+                        if count_3_side[0] == 1.0 else
+                        self.high[0] >= count_3_entry[0]
+                    )
+                    count_3_sl_touched = (
+                        self.low[0] <= count_3_sl[0]
+                        if count_3_side[0] == 1.0 else
+                        self.high[0] >= count_3_sl[0]
+                    )
+                    count_3_tp_touched = (
+                        self.high[0] >= count_3_tp[0]
+                        if count_3_side[0] == 1.0 else
+                        self.low[0] <= count_3_tp[0]
+                    )
+                    if count_3_sl_touched or count_3_tp_touched:
+                        if count_3_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_3_side[0] = 0.0
+                        count_3_entry[0] = nan
+                        count_3_sl[0] = nan
+                        count_3_tp[0] = nan
+                        count_3_day[0] = nan
+                        count_3_bar[0] = -1.0
+                    elif count_3_entry_touched:
+                        if count_3_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_3_side[0] = 0.0
+                        count_3_entry[0] = nan
+                        count_3_sl[0] = nan
+                        count_3_tp[0] = nan
+                        count_3_day[0] = nan
+                        count_3_bar[0] = -1.0
 
-                elif count_buy_ready:
-                    count_mid_entry = candidate_entry_price
-                    count_recent_low = min([
-                        self.low[0], self.low[1], self.low[2], self.low[3],
-                        self.low[4], self.low[5], self.low[6], self.low[7]
-                    ])
-                    count_stop_buffer = max(candle_range * 0.25, abs(count_mid_entry) * 0.00005)
-                    count_stop = min(count_recent_low, count_mid_entry - count_stop_buffer)
-                    count_risk = count_mid_entry - count_stop
-                    count_distance = abs(count_mid_entry - count_stop)
-                    count_risk_per_lot = count_distance * self.contract_size
-                    count_lot = 0.0
-                    if count_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        count_lot = int((risk_budget_cash / count_risk_per_lot) * 100.0) / 100.0
-                    if count_risk > 0.0 and count_distance <= maximum_allowed_sl_distance and count_lot >= 0.01:
-                        count_pending_side[0] = 1.0
-                        count_pending_entry[0] = count_mid_entry
-                        count_pending_sl[0] = count_stop
-                        count_pending_tp[0] = count_mid_entry + count_risk * rr_multiplier
-                        count_pending_day[0] = current_ist_day_key
-                        count_pending_bar[0] = float(self.bar_index)
+                #                if count_4_side[0] != 0.0 and self.bar_index > count_4_bar[0]:
+                    count_4_entry_touched = (
+                        self.low[0] <= count_4_entry[0]
+                        if count_4_side[0] == 1.0 else
+                        self.high[0] >= count_4_entry[0]
+                    )
+                    count_4_sl_touched = (
+                        self.low[0] <= count_4_sl[0]
+                        if count_4_side[0] == 1.0 else
+                        self.high[0] >= count_4_sl[0]
+                    )
+                    count_4_tp_touched = (
+                        self.high[0] >= count_4_tp[0]
+                        if count_4_side[0] == 1.0 else
+                        self.low[0] <= count_4_tp[0]
+                    )
+                    if count_4_sl_touched or count_4_tp_touched:
+                        if count_4_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_4_side[0] = 0.0
+                        count_4_entry[0] = nan
+                        count_4_sl[0] = nan
+                        count_4_tp[0] = nan
+                        count_4_day[0] = nan
+                        count_4_bar[0] = -1.0
+                    elif count_4_entry_touched:
+                        if count_4_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_4_side[0] = 0.0
+                        count_4_entry[0] = nan
+                        count_4_sl[0] = nan
+                        count_4_tp[0] = nan
+                        count_4_day[0] = nan
+                        count_4_bar[0] = -1.0
 
+                #                if count_5_side[0] != 0.0 and self.bar_index > count_5_bar[0]:
+                    count_5_entry_touched = (
+                        self.low[0] <= count_5_entry[0]
+                        if count_5_side[0] == 1.0 else
+                        self.high[0] >= count_5_entry[0]
+                    )
+                    count_5_sl_touched = (
+                        self.low[0] <= count_5_sl[0]
+                        if count_5_side[0] == 1.0 else
+                        self.high[0] >= count_5_sl[0]
+                    )
+                    count_5_tp_touched = (
+                        self.high[0] >= count_5_tp[0]
+                        if count_5_side[0] == 1.0 else
+                        self.low[0] <= count_5_tp[0]
+                    )
+                    if count_5_sl_touched or count_5_tp_touched:
+                        if count_5_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_5_side[0] = 0.0
+                        count_5_entry[0] = nan
+                        count_5_sl[0] = nan
+                        count_5_tp[0] = nan
+                        count_5_day[0] = nan
+                        count_5_bar[0] = -1.0
+                    elif count_5_entry_touched:
+                        if count_5_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_5_side[0] = 0.0
+                        count_5_entry[0] = nan
+                        count_5_sl[0] = nan
+                        count_5_tp[0] = nan
+                        count_5_day[0] = nan
+                        count_5_bar[0] = -1.0
+
+                #                if count_6_side[0] != 0.0 and self.bar_index > count_6_bar[0]:
+                    count_6_entry_touched = (
+                        self.low[0] <= count_6_entry[0]
+                        if count_6_side[0] == 1.0 else
+                        self.high[0] >= count_6_entry[0]
+                    )
+                    count_6_sl_touched = (
+                        self.low[0] <= count_6_sl[0]
+                        if count_6_side[0] == 1.0 else
+                        self.high[0] >= count_6_sl[0]
+                    )
+                    count_6_tp_touched = (
+                        self.high[0] >= count_6_tp[0]
+                        if count_6_side[0] == 1.0 else
+                        self.low[0] <= count_6_tp[0]
+                    )
+                    if count_6_sl_touched or count_6_tp_touched:
+                        if count_6_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_6_side[0] = 0.0
+                        count_6_entry[0] = nan
+                        count_6_sl[0] = nan
+                        count_6_tp[0] = nan
+                        count_6_day[0] = nan
+                        count_6_bar[0] = -1.0
+                    elif count_6_entry_touched:
+                        if count_6_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_6_side[0] = 0.0
+                        count_6_entry[0] = nan
+                        count_6_sl[0] = nan
+                        count_6_tp[0] = nan
+                        count_6_day[0] = nan
+                        count_6_bar[0] = -1.0
+
+                #                if count_7_side[0] != 0.0 and self.bar_index > count_7_bar[0]:
+                    count_7_entry_touched = (
+                        self.low[0] <= count_7_entry[0]
+                        if count_7_side[0] == 1.0 else
+                        self.high[0] >= count_7_entry[0]
+                    )
+                    count_7_sl_touched = (
+                        self.low[0] <= count_7_sl[0]
+                        if count_7_side[0] == 1.0 else
+                        self.high[0] >= count_7_sl[0]
+                    )
+                    count_7_tp_touched = (
+                        self.high[0] >= count_7_tp[0]
+                        if count_7_side[0] == 1.0 else
+                        self.low[0] <= count_7_tp[0]
+                    )
+                    if count_7_sl_touched or count_7_tp_touched:
+                        if count_7_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_7_side[0] = 0.0
+                        count_7_entry[0] = nan
+                        count_7_sl[0] = nan
+                        count_7_tp[0] = nan
+                        count_7_day[0] = nan
+                        count_7_bar[0] = -1.0
+                    elif count_7_entry_touched:
+                        if count_7_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_7_side[0] = 0.0
+                        count_7_entry[0] = nan
+                        count_7_sl[0] = nan
+                        count_7_tp[0] = nan
+                        count_7_day[0] = nan
+                        count_7_bar[0] = -1.0
+
+                #                if count_8_side[0] != 0.0 and self.bar_index > count_8_bar[0]:
+                    count_8_entry_touched = (
+                        self.low[0] <= count_8_entry[0]
+                        if count_8_side[0] == 1.0 else
+                        self.high[0] >= count_8_entry[0]
+                    )
+                    count_8_sl_touched = (
+                        self.low[0] <= count_8_sl[0]
+                        if count_8_side[0] == 1.0 else
+                        self.high[0] >= count_8_sl[0]
+                    )
+                    count_8_tp_touched = (
+                        self.high[0] >= count_8_tp[0]
+                        if count_8_side[0] == 1.0 else
+                        self.low[0] <= count_8_tp[0]
+                    )
+                    if count_8_sl_touched or count_8_tp_touched:
+                        if count_8_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_8_side[0] = 0.0
+                        count_8_entry[0] = nan
+                        count_8_sl[0] = nan
+                        count_8_tp[0] = nan
+                        count_8_day[0] = nan
+                        count_8_bar[0] = -1.0
+                    elif count_8_entry_touched:
+                        if count_8_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_8_side[0] = 0.0
+                        count_8_entry[0] = nan
+                        count_8_sl[0] = nan
+                        count_8_tp[0] = nan
+                        count_8_day[0] = nan
+                        count_8_bar[0] = -1.0
+
+                #                if count_9_side[0] != 0.0 and self.bar_index > count_9_bar[0]:
+                    count_9_entry_touched = (
+                        self.low[0] <= count_9_entry[0]
+                        if count_9_side[0] == 1.0 else
+                        self.high[0] >= count_9_entry[0]
+                    )
+                    count_9_sl_touched = (
+                        self.low[0] <= count_9_sl[0]
+                        if count_9_side[0] == 1.0 else
+                        self.high[0] >= count_9_sl[0]
+                    )
+                    count_9_tp_touched = (
+                        self.high[0] >= count_9_tp[0]
+                        if count_9_side[0] == 1.0 else
+                        self.low[0] <= count_9_tp[0]
+                    )
+                    if count_9_sl_touched or count_9_tp_touched:
+                        if count_9_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_9_side[0] = 0.0
+                        count_9_entry[0] = nan
+                        count_9_sl[0] = nan
+                        count_9_tp[0] = nan
+                        count_9_day[0] = nan
+                        count_9_bar[0] = -1.0
+                    elif count_9_entry_touched:
+                        if count_9_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_9_side[0] = 0.0
+                        count_9_entry[0] = nan
+                        count_9_sl[0] = nan
+                        count_9_tp[0] = nan
+                        count_9_day[0] = nan
+                        count_9_bar[0] = -1.0
+
+                #                if count_10_side[0] != 0.0 and self.bar_index > count_10_bar[0]:
+                    count_10_entry_touched = (
+                        self.low[0] <= count_10_entry[0]
+                        if count_10_side[0] == 1.0 else
+                        self.high[0] >= count_10_entry[0]
+                    )
+                    count_10_sl_touched = (
+                        self.low[0] <= count_10_sl[0]
+                        if count_10_side[0] == 1.0 else
+                        self.high[0] >= count_10_sl[0]
+                    )
+                    count_10_tp_touched = (
+                        self.high[0] >= count_10_tp[0]
+                        if count_10_side[0] == 1.0 else
+                        self.low[0] <= count_10_tp[0]
+                    )
+                    if count_10_sl_touched or count_10_tp_touched:
+                        if count_10_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_10_side[0] = 0.0
+                        count_10_entry[0] = nan
+                        count_10_sl[0] = nan
+                        count_10_tp[0] = nan
+                        count_10_day[0] = nan
+                        count_10_bar[0] = -1.0
+                    elif count_10_entry_touched:
+                        if count_10_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_10_side[0] = 0.0
+                        count_10_entry[0] = nan
+                        count_10_sl[0] = nan
+                        count_10_tp[0] = nan
+                        count_10_day[0] = nan
+                        count_10_bar[0] = -1.0
+
+                #                if count_11_side[0] != 0.0 and self.bar_index > count_11_bar[0]:
+                    count_11_entry_touched = (
+                        self.low[0] <= count_11_entry[0]
+                        if count_11_side[0] == 1.0 else
+                        self.high[0] >= count_11_entry[0]
+                    )
+                    count_11_sl_touched = (
+                        self.low[0] <= count_11_sl[0]
+                        if count_11_side[0] == 1.0 else
+                        self.high[0] >= count_11_sl[0]
+                    )
+                    count_11_tp_touched = (
+                        self.high[0] >= count_11_tp[0]
+                        if count_11_side[0] == 1.0 else
+                        self.low[0] <= count_11_tp[0]
+                    )
+                    if count_11_sl_touched or count_11_tp_touched:
+                        if count_11_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_11_side[0] = 0.0
+                        count_11_entry[0] = nan
+                        count_11_sl[0] = nan
+                        count_11_tp[0] = nan
+                        count_11_day[0] = nan
+                        count_11_bar[0] = -1.0
+                    elif count_11_entry_touched:
+                        if count_11_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_11_side[0] = 0.0
+                        count_11_entry[0] = nan
+                        count_11_sl[0] = nan
+                        count_11_tp[0] = nan
+                        count_11_day[0] = nan
+                        count_11_bar[0] = -1.0
+
+                #                if count_12_side[0] != 0.0 and self.bar_index > count_12_bar[0]:
+                    count_12_entry_touched = (
+                        self.low[0] <= count_12_entry[0]
+                        if count_12_side[0] == 1.0 else
+                        self.high[0] >= count_12_entry[0]
+                    )
+                    count_12_sl_touched = (
+                        self.low[0] <= count_12_sl[0]
+                        if count_12_side[0] == 1.0 else
+                        self.high[0] >= count_12_sl[0]
+                    )
+                    count_12_tp_touched = (
+                        self.high[0] >= count_12_tp[0]
+                        if count_12_side[0] == 1.0 else
+                        self.low[0] <= count_12_tp[0]
+                    )
+                    if count_12_sl_touched or count_12_tp_touched:
+                        if count_12_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_12_side[0] = 0.0
+                        count_12_entry[0] = nan
+                        count_12_sl[0] = nan
+                        count_12_tp[0] = nan
+                        count_12_day[0] = nan
+                        count_12_bar[0] = -1.0
+                    elif count_12_entry_touched:
+                        if count_12_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_12_side[0] = 0.0
+                        count_12_entry[0] = nan
+                        count_12_sl[0] = nan
+                        count_12_tp[0] = nan
+                        count_12_day[0] = nan
+                        count_12_bar[0] = -1.0
+
+                #                if count_13_side[0] != 0.0 and self.bar_index > count_13_bar[0]:
+                    count_13_entry_touched = (
+                        self.low[0] <= count_13_entry[0]
+                        if count_13_side[0] == 1.0 else
+                        self.high[0] >= count_13_entry[0]
+                    )
+                    count_13_sl_touched = (
+                        self.low[0] <= count_13_sl[0]
+                        if count_13_side[0] == 1.0 else
+                        self.high[0] >= count_13_sl[0]
+                    )
+                    count_13_tp_touched = (
+                        self.high[0] >= count_13_tp[0]
+                        if count_13_side[0] == 1.0 else
+                        self.low[0] <= count_13_tp[0]
+                    )
+                    if count_13_sl_touched or count_13_tp_touched:
+                        if count_13_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_13_side[0] = 0.0
+                        count_13_entry[0] = nan
+                        count_13_sl[0] = nan
+                        count_13_tp[0] = nan
+                        count_13_day[0] = nan
+                        count_13_bar[0] = -1.0
+                    elif count_13_entry_touched:
+                        if count_13_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_13_side[0] = 0.0
+                        count_13_entry[0] = nan
+                        count_13_sl[0] = nan
+                        count_13_tp[0] = nan
+                        count_13_day[0] = nan
+                        count_13_bar[0] = -1.0
+
+                #                if count_14_side[0] != 0.0 and self.bar_index > count_14_bar[0]:
+                    count_14_entry_touched = (
+                        self.low[0] <= count_14_entry[0]
+                        if count_14_side[0] == 1.0 else
+                        self.high[0] >= count_14_entry[0]
+                    )
+                    count_14_sl_touched = (
+                        self.low[0] <= count_14_sl[0]
+                        if count_14_side[0] == 1.0 else
+                        self.high[0] >= count_14_sl[0]
+                    )
+                    count_14_tp_touched = (
+                        self.high[0] >= count_14_tp[0]
+                        if count_14_side[0] == 1.0 else
+                        self.low[0] <= count_14_tp[0]
+                    )
+                    if count_14_sl_touched or count_14_tp_touched:
+                        if count_14_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_14_side[0] = 0.0
+                        count_14_entry[0] = nan
+                        count_14_sl[0] = nan
+                        count_14_tp[0] = nan
+                        count_14_day[0] = nan
+                        count_14_bar[0] = -1.0
+                    elif count_14_entry_touched:
+                        if count_14_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_14_side[0] = 0.0
+                        count_14_entry[0] = nan
+                        count_14_sl[0] = nan
+                        count_14_tp[0] = nan
+                        count_14_day[0] = nan
+                        count_14_bar[0] = -1.0
+
+                #                if count_15_side[0] != 0.0 and self.bar_index > count_15_bar[0]:
+                    count_15_entry_touched = (
+                        self.low[0] <= count_15_entry[0]
+                        if count_15_side[0] == 1.0 else
+                        self.high[0] >= count_15_entry[0]
+                    )
+                    count_15_sl_touched = (
+                        self.low[0] <= count_15_sl[0]
+                        if count_15_side[0] == 1.0 else
+                        self.high[0] >= count_15_sl[0]
+                    )
+                    count_15_tp_touched = (
+                        self.high[0] >= count_15_tp[0]
+                        if count_15_side[0] == 1.0 else
+                        self.low[0] <= count_15_tp[0]
+                    )
+                    if count_15_sl_touched or count_15_tp_touched:
+                        if count_15_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_15_side[0] = 0.0
+                        count_15_entry[0] = nan
+                        count_15_sl[0] = nan
+                        count_15_tp[0] = nan
+                        count_15_day[0] = nan
+                        count_15_bar[0] = -1.0
+                    elif count_15_entry_touched:
+                        if count_15_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_15_side[0] = 0.0
+                        count_15_entry[0] = nan
+                        count_15_sl[0] = nan
+                        count_15_tp[0] = nan
+                        count_15_day[0] = nan
+                        count_15_bar[0] = -1.0
+
+                #                if count_16_side[0] != 0.0 and self.bar_index > count_16_bar[0]:
+                    count_16_entry_touched = (
+                        self.low[0] <= count_16_entry[0]
+                        if count_16_side[0] == 1.0 else
+                        self.high[0] >= count_16_entry[0]
+                    )
+                    count_16_sl_touched = (
+                        self.low[0] <= count_16_sl[0]
+                        if count_16_side[0] == 1.0 else
+                        self.high[0] >= count_16_sl[0]
+                    )
+                    count_16_tp_touched = (
+                        self.high[0] >= count_16_tp[0]
+                        if count_16_side[0] == 1.0 else
+                        self.low[0] <= count_16_tp[0]
+                    )
+                    if count_16_sl_touched or count_16_tp_touched:
+                        if count_16_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_16_side[0] = 0.0
+                        count_16_entry[0] = nan
+                        count_16_sl[0] = nan
+                        count_16_tp[0] = nan
+                        count_16_day[0] = nan
+                        count_16_bar[0] = -1.0
+                    elif count_16_entry_touched:
+                        if count_16_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_16_side[0] = 0.0
+                        count_16_entry[0] = nan
+                        count_16_sl[0] = nan
+                        count_16_tp[0] = nan
+                        count_16_day[0] = nan
+                        count_16_bar[0] = -1.0
+
+                #                if count_17_side[0] != 0.0 and self.bar_index > count_17_bar[0]:
+                    count_17_entry_touched = (
+                        self.low[0] <= count_17_entry[0]
+                        if count_17_side[0] == 1.0 else
+                        self.high[0] >= count_17_entry[0]
+                    )
+                    count_17_sl_touched = (
+                        self.low[0] <= count_17_sl[0]
+                        if count_17_side[0] == 1.0 else
+                        self.high[0] >= count_17_sl[0]
+                    )
+                    count_17_tp_touched = (
+                        self.high[0] >= count_17_tp[0]
+                        if count_17_side[0] == 1.0 else
+                        self.low[0] <= count_17_tp[0]
+                    )
+                    if count_17_sl_touched or count_17_tp_touched:
+                        if count_17_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_17_side[0] = 0.0
+                        count_17_entry[0] = nan
+                        count_17_sl[0] = nan
+                        count_17_tp[0] = nan
+                        count_17_day[0] = nan
+                        count_17_bar[0] = -1.0
+                    elif count_17_entry_touched:
+                        if count_17_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_17_side[0] = 0.0
+                        count_17_entry[0] = nan
+                        count_17_sl[0] = nan
+                        count_17_tp[0] = nan
+                        count_17_day[0] = nan
+                        count_17_bar[0] = -1.0
+
+                #                if count_18_side[0] != 0.0 and self.bar_index > count_18_bar[0]:
+                    count_18_entry_touched = (
+                        self.low[0] <= count_18_entry[0]
+                        if count_18_side[0] == 1.0 else
+                        self.high[0] >= count_18_entry[0]
+                    )
+                    count_18_sl_touched = (
+                        self.low[0] <= count_18_sl[0]
+                        if count_18_side[0] == 1.0 else
+                        self.high[0] >= count_18_sl[0]
+                    )
+                    count_18_tp_touched = (
+                        self.high[0] >= count_18_tp[0]
+                        if count_18_side[0] == 1.0 else
+                        self.low[0] <= count_18_tp[0]
+                    )
+                    if count_18_sl_touched or count_18_tp_touched:
+                        if count_18_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_18_side[0] = 0.0
+                        count_18_entry[0] = nan
+                        count_18_sl[0] = nan
+                        count_18_tp[0] = nan
+                        count_18_day[0] = nan
+                        count_18_bar[0] = -1.0
+                    elif count_18_entry_touched:
+                        if count_18_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_18_side[0] = 0.0
+                        count_18_entry[0] = nan
+                        count_18_sl[0] = nan
+                        count_18_tp[0] = nan
+                        count_18_day[0] = nan
+                        count_18_bar[0] = -1.0
+
+                #                if count_19_side[0] != 0.0 and self.bar_index > count_19_bar[0]:
+                    count_19_entry_touched = (
+                        self.low[0] <= count_19_entry[0]
+                        if count_19_side[0] == 1.0 else
+                        self.high[0] >= count_19_entry[0]
+                    )
+                    count_19_sl_touched = (
+                        self.low[0] <= count_19_sl[0]
+                        if count_19_side[0] == 1.0 else
+                        self.high[0] >= count_19_sl[0]
+                    )
+                    count_19_tp_touched = (
+                        self.high[0] >= count_19_tp[0]
+                        if count_19_side[0] == 1.0 else
+                        self.low[0] <= count_19_tp[0]
+                    )
+                    if count_19_sl_touched or count_19_tp_touched:
+                        if count_19_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_19_side[0] = 0.0
+                        count_19_entry[0] = nan
+                        count_19_sl[0] = nan
+                        count_19_tp[0] = nan
+                        count_19_day[0] = nan
+                        count_19_bar[0] = -1.0
+                    elif count_19_entry_touched:
+                        if count_19_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_19_side[0] = 0.0
+                        count_19_entry[0] = nan
+                        count_19_sl[0] = nan
+                        count_19_tp[0] = nan
+                        count_19_day[0] = nan
+                        count_19_bar[0] = -1.0
+
+                #                if count_20_side[0] != 0.0 and self.bar_index > count_20_bar[0]:
+                    count_20_entry_touched = (
+                        self.low[0] <= count_20_entry[0]
+                        if count_20_side[0] == 1.0 else
+                        self.high[0] >= count_20_entry[0]
+                    )
+                    count_20_sl_touched = (
+                        self.low[0] <= count_20_sl[0]
+                        if count_20_side[0] == 1.0 else
+                        self.high[0] >= count_20_sl[0]
+                    )
+                    count_20_tp_touched = (
+                        self.high[0] >= count_20_tp[0]
+                        if count_20_side[0] == 1.0 else
+                        self.low[0] <= count_20_tp[0]
+                    )
+                    if count_20_sl_touched or count_20_tp_touched:
+                        if count_20_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_20_side[0] = 0.0
+                        count_20_entry[0] = nan
+                        count_20_sl[0] = nan
+                        count_20_tp[0] = nan
+                        count_20_day[0] = nan
+                        count_20_bar[0] = -1.0
+                    elif count_20_entry_touched:
+                        if count_20_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_20_side[0] = 0.0
+                        count_20_entry[0] = nan
+                        count_20_sl[0] = nan
+                        count_20_tp[0] = nan
+                        count_20_day[0] = nan
+                        count_20_bar[0] = -1.0
+
+                #
+                # Build the original midpoint setup independently of live execution sizing.
+                # One signal can occupy one free slot; existing unresolved setups are retained.
+                if not rr_setting_changed:
+                    count_sell_ready = sell_condition or sell_breakout_pullback_ready
+                    count_buy_ready = buy_condition or buy_breakout_pullback_ready
+                    count_new_side = 0.0
+                    count_new_entry = nan
+                    count_new_stop = nan
+                    count_new_tp = nan
+
+                    if count_sell_ready and not count_buy_ready:
+                        count_new_entry = candidate_entry_price
+                        count_recent_high = max([
+                            self.high[0], self.high[1], self.high[2], self.high[3],
+                            self.high[4], self.high[5], self.high[6], self.high[7]
+                        ])
+                        count_stop_buffer = max(candle_range * 0.25, abs(count_new_entry) * 0.00005)
+                        count_new_stop = max(count_recent_high, count_new_entry + count_stop_buffer)
+                        count_new_risk = count_new_stop - count_new_entry
+                        count_new_distance = abs(count_new_entry - count_new_stop)
+                        count_new_side = -1.0
+                    elif count_buy_ready:
+                        count_new_entry = candidate_entry_price
+                        count_recent_low = min([
+                            self.low[0], self.low[1], self.low[2], self.low[3],
+                            self.low[4], self.low[5], self.low[6], self.low[7]
+                        ])
+                        count_stop_buffer = max(candle_range * 0.25, abs(count_new_entry) * 0.00005)
+                        count_new_stop = min(count_recent_low, count_new_entry - count_stop_buffer)
+                        count_new_risk = count_new_entry - count_new_stop
+                        count_new_distance = abs(count_new_entry - count_new_stop)
+                        count_new_side = 1.0
+                    else:
+                        count_new_risk = 0.0
+                        count_new_distance = 0.0
+
+                    count_new_risk_per_lot = count_new_distance * self.contract_size
+                    count_new_lot = 0.0
+                    if count_new_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        count_new_lot = int((risk_budget_cash / count_new_risk_per_lot) * 100.0) / 100.0
+
+                    if (
+                        count_new_side != 0.0
+                        and count_new_risk > 0.0
+                        and count_new_distance <= maximum_allowed_sl_distance
+                        and count_new_lot >= 0.01
+                    ):
+                        if count_1_side[0] == 0.0:
+                            count_1_side[0] = count_new_side
+                            count_1_entry[0] = count_new_entry
+                            count_1_sl[0] = count_new_stop
+                            count_1_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_1_day[0] = current_ist_day_key
+                            count_1_bar[0] = float(self.bar_index)
+                        elif count_2_side[0] == 0.0:
+                            count_2_side[0] = count_new_side
+                            count_2_entry[0] = count_new_entry
+                            count_2_sl[0] = count_new_stop
+                            count_2_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_2_day[0] = current_ist_day_key
+                            count_2_bar[0] = float(self.bar_index)
+                        elif count_3_side[0] == 0.0:
+                            count_3_side[0] = count_new_side
+                            count_3_entry[0] = count_new_entry
+                            count_3_sl[0] = count_new_stop
+                            count_3_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_3_day[0] = current_ist_day_key
+                            count_3_bar[0] = float(self.bar_index)
+                        elif count_4_side[0] == 0.0:
+                            count_4_side[0] = count_new_side
+                            count_4_entry[0] = count_new_entry
+                            count_4_sl[0] = count_new_stop
+                            count_4_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_4_day[0] = current_ist_day_key
+                            count_4_bar[0] = float(self.bar_index)
+                        elif count_5_side[0] == 0.0:
+                            count_5_side[0] = count_new_side
+                            count_5_entry[0] = count_new_entry
+                            count_5_sl[0] = count_new_stop
+                            count_5_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_5_day[0] = current_ist_day_key
+                            count_5_bar[0] = float(self.bar_index)
+                        elif count_6_side[0] == 0.0:
+                            count_6_side[0] = count_new_side
+                            count_6_entry[0] = count_new_entry
+                            count_6_sl[0] = count_new_stop
+                            count_6_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_6_day[0] = current_ist_day_key
+                            count_6_bar[0] = float(self.bar_index)
+                        elif count_7_side[0] == 0.0:
+                            count_7_side[0] = count_new_side
+                            count_7_entry[0] = count_new_entry
+                            count_7_sl[0] = count_new_stop
+                            count_7_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_7_day[0] = current_ist_day_key
+                            count_7_bar[0] = float(self.bar_index)
+                        elif count_8_side[0] == 0.0:
+                            count_8_side[0] = count_new_side
+                            count_8_entry[0] = count_new_entry
+                            count_8_sl[0] = count_new_stop
+                            count_8_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_8_day[0] = current_ist_day_key
+                            count_8_bar[0] = float(self.bar_index)
+                        elif count_9_side[0] == 0.0:
+                            count_9_side[0] = count_new_side
+                            count_9_entry[0] = count_new_entry
+                            count_9_sl[0] = count_new_stop
+                            count_9_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_9_day[0] = current_ist_day_key
+                            count_9_bar[0] = float(self.bar_index)
+                        elif count_10_side[0] == 0.0:
+                            count_10_side[0] = count_new_side
+                            count_10_entry[0] = count_new_entry
+                            count_10_sl[0] = count_new_stop
+                            count_10_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_10_day[0] = current_ist_day_key
+                            count_10_bar[0] = float(self.bar_index)
+                        elif count_11_side[0] == 0.0:
+                            count_11_side[0] = count_new_side
+                            count_11_entry[0] = count_new_entry
+                            count_11_sl[0] = count_new_stop
+                            count_11_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_11_day[0] = current_ist_day_key
+                            count_11_bar[0] = float(self.bar_index)
+                        elif count_12_side[0] == 0.0:
+                            count_12_side[0] = count_new_side
+                            count_12_entry[0] = count_new_entry
+                            count_12_sl[0] = count_new_stop
+                            count_12_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_12_day[0] = current_ist_day_key
+                            count_12_bar[0] = float(self.bar_index)
+                        elif count_13_side[0] == 0.0:
+                            count_13_side[0] = count_new_side
+                            count_13_entry[0] = count_new_entry
+                            count_13_sl[0] = count_new_stop
+                            count_13_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_13_day[0] = current_ist_day_key
+                            count_13_bar[0] = float(self.bar_index)
+                        elif count_14_side[0] == 0.0:
+                            count_14_side[0] = count_new_side
+                            count_14_entry[0] = count_new_entry
+                            count_14_sl[0] = count_new_stop
+                            count_14_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_14_day[0] = current_ist_day_key
+                            count_14_bar[0] = float(self.bar_index)
+                        elif count_15_side[0] == 0.0:
+                            count_15_side[0] = count_new_side
+                            count_15_entry[0] = count_new_entry
+                            count_15_sl[0] = count_new_stop
+                            count_15_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_15_day[0] = current_ist_day_key
+                            count_15_bar[0] = float(self.bar_index)
+                        elif count_16_side[0] == 0.0:
+                            count_16_side[0] = count_new_side
+                            count_16_entry[0] = count_new_entry
+                            count_16_sl[0] = count_new_stop
+                            count_16_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_16_day[0] = current_ist_day_key
+                            count_16_bar[0] = float(self.bar_index)
+                        elif count_17_side[0] == 0.0:
+                            count_17_side[0] = count_new_side
+                            count_17_entry[0] = count_new_entry
+                            count_17_sl[0] = count_new_stop
+                            count_17_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_17_day[0] = current_ist_day_key
+                            count_17_bar[0] = float(self.bar_index)
+                        elif count_18_side[0] == 0.0:
+                            count_18_side[0] = count_new_side
+                            count_18_entry[0] = count_new_entry
+                            count_18_sl[0] = count_new_stop
+                            count_18_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_18_day[0] = current_ist_day_key
+                            count_18_bar[0] = float(self.bar_index)
+                        elif count_19_side[0] == 0.0:
+                            count_19_side[0] = count_new_side
+                            count_19_entry[0] = count_new_entry
+                            count_19_sl[0] = count_new_stop
+                            count_19_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_19_day[0] = current_ist_day_key
+                            count_19_bar[0] = float(self.bar_index)
+                        elif count_20_side[0] == 0.0:
+                            count_20_side[0] = count_new_side
+                            count_20_entry[0] = count_new_entry
+                            count_20_sl[0] = count_new_stop
+                            count_20_tp[0] = (
+                                count_new_entry + count_new_risk * rr_multiplier
+                                if count_new_side == 1.0 else
+                                count_new_entry - count_new_risk * rr_multiplier
+                            )
+                            count_20_day[0] = current_ist_day_key
+                            count_20_bar[0] = float(self.bar_index)
+                        # If all 20 slots are occupied, do not overwrite an unresolved setup.
             # ================================================
             # NEW PRIMARY ENTRY
             # ================================================
