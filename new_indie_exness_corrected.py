@@ -2432,8 +2432,7 @@ class Main(MainContext):
                     trail_confirm_count[0] = 0.0
                     trail_candidate[0] = nan
 
-                    # Keep the chart uncluttered: the SL line itself shows
-                    # every trailing adjustment; do not add repeated text labels.
+                    # The moving SL line shows trailing changes; avoid repeated text labels.
                     if tp_progress >= 0.95:
                         trail_stage[0] = 3.0
                     elif tp_progress >= 0.85:
