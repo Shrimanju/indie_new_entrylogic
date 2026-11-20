@@ -3396,10 +3396,16 @@ class Main(MainContext):
                 if not rr_setting_changed:
                     count_sell_ready = sell_condition or sell_breakout_pullback_ready
                     count_buy_ready = buy_condition or buy_breakout_pullback_ready
+                    # Initialize every candidate field before branching so Indie
+                    # can resolve symbols on all control-flow paths.
                     count_new_side = 0.0
                     count_new_entry = nan
                     count_new_stop = nan
                     count_new_tp = nan
+                    count_new_risk = 0.0
+                    count_new_distance = 0.0
+                    count_new_risk_per_lot = 0.0
+                    count_new_lot = 0.0
 
                     if count_sell_ready and not count_buy_ready:
                         count_new_entry = candidate_entry_price
