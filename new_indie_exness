@@ -363,16 +363,6 @@ class Main(MainContext):
 
     def calc(self):
 
-        # Setup-counter candidate values live at calc-method scope.
-        count_new_side = 0.0
-        count_new_entry = nan
-        count_new_stop = nan
-        count_new_tp = nan
-        count_new_risk = 0.0
-        count_new_distance = 0.0
-        count_new_risk_per_lot = 0.0
-        count_new_lot = 0.0
-
         # ====================================================
         # TRADE STATE
         # ====================================================
@@ -1961,8 +1951,18 @@ class Main(MainContext):
 
         if self.is_closed_bar:
 
-            pass
+            # Setup-counter candidates are declared inside the closed-bar parent
+            # block so nested tracker conditions can resolve them in Indie.
+            count_new_side = 0.0
+            count_new_entry = nan
+            count_new_stop = nan
+            count_new_tp = nan
+            count_new_risk = 0.0
+            count_new_distance = 0.0
+            count_new_risk_per_lot = 0.0
+            count_new_lot = 0.0
 
+            pass
             # ================================================
             # EXITS
             # ================================================
