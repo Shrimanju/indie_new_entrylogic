@@ -418,6 +418,14 @@ class Main(MainContext):
         pending_trade_setup_day = MutSeriesF.new(init=nan)
         pending_trade_setup_bar = MutSeriesF.new(init=-1.0)
 
+        # Independent original-midpoint report tracker, separate from live execution.
+        count_pending_side = MutSeriesF.new(init=0.0)
+        count_pending_entry = MutSeriesF.new(init=nan)
+        count_pending_sl = MutSeriesF.new(init=nan)
+        count_pending_tp = MutSeriesF.new(init=nan)
+        count_pending_day = MutSeriesF.new(init=nan)
+        count_pending_bar = MutSeriesF.new(init=-1.0)
+
         entry_label_time = MutSeriesF.new(init=nan)
         early_exit_warned = MutSeriesF.new(init=0.0)
 
@@ -560,6 +568,13 @@ class Main(MainContext):
             pending_trade_risk_cash[0] = pending_trade_risk_cash[1]
             pending_trade_setup_day[0] = pending_trade_setup_day[1]
             pending_trade_setup_bar[0] = pending_trade_setup_bar[1]
+
+            count_pending_side[0] = count_pending_side[1]
+            count_pending_entry[0] = count_pending_entry[1]
+            count_pending_sl[0] = count_pending_sl[1]
+            count_pending_tp[0] = count_pending_tp[1]
+            count_pending_day[0] = count_pending_day[1]
+            count_pending_bar[0] = count_pending_bar[1]
 
             entry_label_time[0] = entry_label_time[1]
             early_exit_warned[0] = early_exit_warned[1]
@@ -705,6 +720,12 @@ class Main(MainContext):
             pending_trade_risk_cash[0] = nan
             pending_trade_setup_day[0] = nan
             pending_trade_setup_bar[0] = -1.0
+            count_pending_side[0] = 0.0
+            count_pending_entry[0] = nan
+            count_pending_sl[0] = nan
+            count_pending_tp[0] = nan
+            count_pending_day[0] = nan
+            count_pending_bar[0] = -1.0
             entry_label_time[0] = nan
             early_exit_warned[0] = 0.0
             report_trades[0] = 0.0
@@ -2321,6 +2342,100 @@ class Main(MainContext):
                 self.account_capital * total_risk_percent / 100.0
             )
 
+            # Independent original-midpoint setup counter. This runs even
+            # while another early leg is open and never changes live trade state.
+            if self.is_closed_bar and count_pending_side[0] != 0.0:
+                count_side_value = count_pending_side[0]
+                count_entry_touched = (
+                    self.low[0] <= count_pending_entry[0]
+                    if count_side_value == 1.0 else
+                    self.high[0] >= count_pending_entry[0]
+                )
+                count_sl_touched = (
+                    self.low[0] <= count_pending_sl[0]
+                    if count_side_value == 1.0 else
+                    self.high[0] >= count_pending_sl[0]
+                )
+                count_tp_touched = (
+                    self.high[0] >= count_pending_tp[0]
+                    if count_side_value == 1.0 else
+                    self.low[0] <= count_pending_tp[0]
+                )
+                if self.bar_index > count_pending_bar[0]:
+                    # SL/TP wins over midpoint on the same candle: INACTIVE.
+                    if count_sl_touched or count_tp_touched:
+                        if count_pending_day[0] == self._selected_report_day_key:
+                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
+                        count_pending_side[0] = 0.0
+                        count_pending_entry[0] = nan
+                        count_pending_sl[0] = nan
+                        count_pending_tp[0] = nan
+                        count_pending_day[0] = nan
+                        count_pending_bar[0] = -1.0
+                    elif count_entry_touched:
+                        if count_pending_day[0] == self._selected_report_day_key:
+                            report_active_trades[0] = report_active_trades[0] + 1.0
+                        count_pending_side[0] = 0.0
+                        count_pending_entry[0] = nan
+                        count_pending_sl[0] = nan
+                        count_pending_tp[0] = nan
+                        count_pending_day[0] = nan
+                        count_pending_bar[0] = -1.0
+
+            # Arm one independent pending setup whenever the counter is free.
+            # It may coexist with the current execution engine's active position.
+            if (
+                self.is_closed_bar
+                and count_pending_side[0] == 0.0
+                and not rr_setting_changed
+            ):
+                count_sell_ready = sell_condition or sell_breakout_pullback_ready
+                count_buy_ready = buy_condition or buy_breakout_pullback_ready
+
+                if count_sell_ready and not count_buy_ready:
+                    count_mid_entry = candidate_entry_price
+                    count_recent_high = max([
+                        self.high[0], self.high[1], self.high[2], self.high[3],
+                        self.high[4], self.high[5], self.high[6], self.high[7]
+                    ])
+                    count_stop_buffer = max(candle_range * 0.25, abs(count_mid_entry) * 0.00005)
+                    count_stop = max(count_recent_high, count_mid_entry + count_stop_buffer)
+                    count_risk = count_stop - count_mid_entry
+                    count_distance = abs(count_mid_entry - count_stop)
+                    count_risk_per_lot = count_distance * self.contract_size
+                    count_lot = 0.0
+                    if count_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        count_lot = int((risk_budget_cash / count_risk_per_lot) * 100.0) / 100.0
+                    if count_risk > 0.0 and count_distance <= maximum_allowed_sl_distance and count_lot >= 0.01:
+                        count_pending_side[0] = -1.0
+                        count_pending_entry[0] = count_mid_entry
+                        count_pending_sl[0] = count_stop
+                        count_pending_tp[0] = count_mid_entry - count_risk * rr_multiplier
+                        count_pending_day[0] = current_ist_day_key
+                        count_pending_bar[0] = float(self.bar_index)
+
+                elif count_buy_ready:
+                    count_mid_entry = candidate_entry_price
+                    count_recent_low = min([
+                        self.low[0], self.low[1], self.low[2], self.low[3],
+                        self.low[4], self.low[5], self.low[6], self.low[7]
+                    ])
+                    count_stop_buffer = max(candle_range * 0.25, abs(count_mid_entry) * 0.00005)
+                    count_stop = min(count_recent_low, count_mid_entry - count_stop_buffer)
+                    count_risk = count_mid_entry - count_stop
+                    count_distance = abs(count_mid_entry - count_stop)
+                    count_risk_per_lot = count_distance * self.contract_size
+                    count_lot = 0.0
+                    if count_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
+                        count_lot = int((risk_budget_cash / count_risk_per_lot) * 100.0) / 100.0
+                    if count_risk > 0.0 and count_distance <= maximum_allowed_sl_distance and count_lot >= 0.01:
+                        count_pending_side[0] = 1.0
+                        count_pending_entry[0] = count_mid_entry
+                        count_pending_sl[0] = count_stop
+                        count_pending_tp[0] = count_mid_entry + count_risk * rr_multiplier
+                        count_pending_day[0] = current_ist_day_key
+                        count_pending_bar[0] = float(self.bar_index)
+
             # ================================================
             # NEW PRIMARY ENTRY
             # ================================================
@@ -2380,8 +2495,6 @@ class Main(MainContext):
                         and midpoint_signal_lot >= 0.01
                     ):
                         sell_signal = True
-                        if current_ist_day_key == self._selected_report_day_key:
-                            report_trades[0] = report_trades[0] + 1.0
 
                     early_lot = 0.0
                     mid_lot = 0.0
@@ -2427,10 +2540,6 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
-                        # Count the setup as ACTIVE at the immediate early fill.
-                        # The midpoint leg is optional and must not add another trade.
-                        if current_ist_day_key == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         pending_trade_side[0] = -1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
@@ -2493,8 +2602,6 @@ class Main(MainContext):
                         and midpoint_signal_lot >= 0.01
                     ):
                         buy_signal = True
-                        if current_ist_day_key == self._selected_report_day_key:
-                            report_trades[0] = report_trades[0] + 1.0
 
                     early_lot = 0.0
                     mid_lot = 0.0
@@ -2540,10 +2647,6 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
-                        # Count the setup as ACTIVE at the immediate early fill.
-                        # The midpoint leg is optional and must not add another trade.
-                        if current_ist_day_key == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         pending_trade_side[0] = 1.0
                         pending_trade_entry[0] = entry_price
                         pending_mid_entry[0] = entry_price
@@ -2810,9 +2913,8 @@ class Main(MainContext):
             tp_count = int(report_tp[0])
             trailing_sl_count = int(report_trailing_sl[0])
             active_trades = int(report_active_trades[0])
-            # Inactive = valid original midpoint signals with no executed early leg.
-            total_trades = int(report_trades[0])
-            inactive_trades = max(0, total_trades - active_trades)
+            inactive_trades = int(report_inactive_trades[0])
+            total_trades = active_trades + inactive_trades
             total_exits = sl_count + tp_count + trailing_sl_count
 
             win_rate = 0.0
