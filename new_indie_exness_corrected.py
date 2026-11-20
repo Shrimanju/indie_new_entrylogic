@@ -1939,6 +1939,7 @@ class Main(MainContext):
                     )
 
                 if pending_trade_setup_day[0] == self._selected_report_day_key:
+                    report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                     report_inactive_pnl[0] = report_inactive_pnl[0] + inactive_result
 
                 pending_trade_side[0] = 0.0
@@ -2012,6 +2013,9 @@ class Main(MainContext):
                 early_leg_closed[0] = 0.0
                 early_leg_pnl[0] = 0.0
                 mid_leg_pnl[0] = 0.0
+
+                if pending_trade_setup_day[0] == self._selected_report_day_key:
+                    report_active_trades[0] = report_active_trades[0] + 1.0
 
                 side[0] = pending_side_value
                 sl[0] = pending_sl_value
@@ -2792,8 +2796,6 @@ class Main(MainContext):
                         self.low[0] <= count_1_tp[0]
                     )
                     if count_1_sl_touched or count_1_tp_touched:
-                        if count_1_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_1_side[0] = 0.0
                         count_1_entry[0] = nan
                         count_1_sl[0] = nan
@@ -2801,8 +2803,6 @@ class Main(MainContext):
                         count_1_day[0] = nan
                         count_1_bar[0] = -1.0
                     elif count_1_entry_touched:
-                        if count_1_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_1_side[0] = 0.0
                         count_1_entry[0] = nan
                         count_1_sl[0] = nan
@@ -2827,8 +2827,6 @@ class Main(MainContext):
                         self.low[0] <= count_2_tp[0]
                     )
                     if count_2_sl_touched or count_2_tp_touched:
-                        if count_2_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_2_side[0] = 0.0
                         count_2_entry[0] = nan
                         count_2_sl[0] = nan
@@ -2836,8 +2834,6 @@ class Main(MainContext):
                         count_2_day[0] = nan
                         count_2_bar[0] = -1.0
                     elif count_2_entry_touched:
-                        if count_2_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_2_side[0] = 0.0
                         count_2_entry[0] = nan
                         count_2_sl[0] = nan
@@ -2862,8 +2858,6 @@ class Main(MainContext):
                         self.low[0] <= count_3_tp[0]
                     )
                     if count_3_sl_touched or count_3_tp_touched:
-                        if count_3_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_3_side[0] = 0.0
                         count_3_entry[0] = nan
                         count_3_sl[0] = nan
@@ -2871,8 +2865,6 @@ class Main(MainContext):
                         count_3_day[0] = nan
                         count_3_bar[0] = -1.0
                     elif count_3_entry_touched:
-                        if count_3_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_3_side[0] = 0.0
                         count_3_entry[0] = nan
                         count_3_sl[0] = nan
@@ -2897,8 +2889,6 @@ class Main(MainContext):
                         self.low[0] <= count_4_tp[0]
                     )
                     if count_4_sl_touched or count_4_tp_touched:
-                        if count_4_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_4_side[0] = 0.0
                         count_4_entry[0] = nan
                         count_4_sl[0] = nan
@@ -2906,8 +2896,6 @@ class Main(MainContext):
                         count_4_day[0] = nan
                         count_4_bar[0] = -1.0
                     elif count_4_entry_touched:
-                        if count_4_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_4_side[0] = 0.0
                         count_4_entry[0] = nan
                         count_4_sl[0] = nan
@@ -2932,8 +2920,6 @@ class Main(MainContext):
                         self.low[0] <= count_5_tp[0]
                     )
                     if count_5_sl_touched or count_5_tp_touched:
-                        if count_5_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_5_side[0] = 0.0
                         count_5_entry[0] = nan
                         count_5_sl[0] = nan
@@ -2941,8 +2927,6 @@ class Main(MainContext):
                         count_5_day[0] = nan
                         count_5_bar[0] = -1.0
                     elif count_5_entry_touched:
-                        if count_5_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_5_side[0] = 0.0
                         count_5_entry[0] = nan
                         count_5_sl[0] = nan
@@ -2967,8 +2951,6 @@ class Main(MainContext):
                         self.low[0] <= count_6_tp[0]
                     )
                     if count_6_sl_touched or count_6_tp_touched:
-                        if count_6_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_6_side[0] = 0.0
                         count_6_entry[0] = nan
                         count_6_sl[0] = nan
@@ -2976,8 +2958,6 @@ class Main(MainContext):
                         count_6_day[0] = nan
                         count_6_bar[0] = -1.0
                     elif count_6_entry_touched:
-                        if count_6_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_6_side[0] = 0.0
                         count_6_entry[0] = nan
                         count_6_sl[0] = nan
@@ -3002,8 +2982,6 @@ class Main(MainContext):
                         self.low[0] <= count_7_tp[0]
                     )
                     if count_7_sl_touched or count_7_tp_touched:
-                        if count_7_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_7_side[0] = 0.0
                         count_7_entry[0] = nan
                         count_7_sl[0] = nan
@@ -3011,8 +2989,6 @@ class Main(MainContext):
                         count_7_day[0] = nan
                         count_7_bar[0] = -1.0
                     elif count_7_entry_touched:
-                        if count_7_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_7_side[0] = 0.0
                         count_7_entry[0] = nan
                         count_7_sl[0] = nan
@@ -3037,8 +3013,6 @@ class Main(MainContext):
                         self.low[0] <= count_8_tp[0]
                     )
                     if count_8_sl_touched or count_8_tp_touched:
-                        if count_8_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_8_side[0] = 0.0
                         count_8_entry[0] = nan
                         count_8_sl[0] = nan
@@ -3046,8 +3020,6 @@ class Main(MainContext):
                         count_8_day[0] = nan
                         count_8_bar[0] = -1.0
                     elif count_8_entry_touched:
-                        if count_8_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_8_side[0] = 0.0
                         count_8_entry[0] = nan
                         count_8_sl[0] = nan
@@ -3072,8 +3044,6 @@ class Main(MainContext):
                         self.low[0] <= count_9_tp[0]
                     )
                     if count_9_sl_touched or count_9_tp_touched:
-                        if count_9_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_9_side[0] = 0.0
                         count_9_entry[0] = nan
                         count_9_sl[0] = nan
@@ -3081,8 +3051,6 @@ class Main(MainContext):
                         count_9_day[0] = nan
                         count_9_bar[0] = -1.0
                     elif count_9_entry_touched:
-                        if count_9_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_9_side[0] = 0.0
                         count_9_entry[0] = nan
                         count_9_sl[0] = nan
@@ -3107,8 +3075,6 @@ class Main(MainContext):
                         self.low[0] <= count_10_tp[0]
                     )
                     if count_10_sl_touched or count_10_tp_touched:
-                        if count_10_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_10_side[0] = 0.0
                         count_10_entry[0] = nan
                         count_10_sl[0] = nan
@@ -3116,8 +3082,6 @@ class Main(MainContext):
                         count_10_day[0] = nan
                         count_10_bar[0] = -1.0
                     elif count_10_entry_touched:
-                        if count_10_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_10_side[0] = 0.0
                         count_10_entry[0] = nan
                         count_10_sl[0] = nan
@@ -3142,8 +3106,6 @@ class Main(MainContext):
                         self.low[0] <= count_11_tp[0]
                     )
                     if count_11_sl_touched or count_11_tp_touched:
-                        if count_11_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_11_side[0] = 0.0
                         count_11_entry[0] = nan
                         count_11_sl[0] = nan
@@ -3151,8 +3113,6 @@ class Main(MainContext):
                         count_11_day[0] = nan
                         count_11_bar[0] = -1.0
                     elif count_11_entry_touched:
-                        if count_11_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_11_side[0] = 0.0
                         count_11_entry[0] = nan
                         count_11_sl[0] = nan
@@ -3177,8 +3137,6 @@ class Main(MainContext):
                         self.low[0] <= count_12_tp[0]
                     )
                     if count_12_sl_touched or count_12_tp_touched:
-                        if count_12_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_12_side[0] = 0.0
                         count_12_entry[0] = nan
                         count_12_sl[0] = nan
@@ -3186,8 +3144,6 @@ class Main(MainContext):
                         count_12_day[0] = nan
                         count_12_bar[0] = -1.0
                     elif count_12_entry_touched:
-                        if count_12_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_12_side[0] = 0.0
                         count_12_entry[0] = nan
                         count_12_sl[0] = nan
@@ -3212,8 +3168,6 @@ class Main(MainContext):
                         self.low[0] <= count_13_tp[0]
                     )
                     if count_13_sl_touched or count_13_tp_touched:
-                        if count_13_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_13_side[0] = 0.0
                         count_13_entry[0] = nan
                         count_13_sl[0] = nan
@@ -3221,8 +3175,6 @@ class Main(MainContext):
                         count_13_day[0] = nan
                         count_13_bar[0] = -1.0
                     elif count_13_entry_touched:
-                        if count_13_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_13_side[0] = 0.0
                         count_13_entry[0] = nan
                         count_13_sl[0] = nan
@@ -3247,8 +3199,6 @@ class Main(MainContext):
                         self.low[0] <= count_14_tp[0]
                     )
                     if count_14_sl_touched or count_14_tp_touched:
-                        if count_14_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_14_side[0] = 0.0
                         count_14_entry[0] = nan
                         count_14_sl[0] = nan
@@ -3256,8 +3206,6 @@ class Main(MainContext):
                         count_14_day[0] = nan
                         count_14_bar[0] = -1.0
                     elif count_14_entry_touched:
-                        if count_14_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_14_side[0] = 0.0
                         count_14_entry[0] = nan
                         count_14_sl[0] = nan
@@ -3282,8 +3230,6 @@ class Main(MainContext):
                         self.low[0] <= count_15_tp[0]
                     )
                     if count_15_sl_touched or count_15_tp_touched:
-                        if count_15_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_15_side[0] = 0.0
                         count_15_entry[0] = nan
                         count_15_sl[0] = nan
@@ -3291,8 +3237,6 @@ class Main(MainContext):
                         count_15_day[0] = nan
                         count_15_bar[0] = -1.0
                     elif count_15_entry_touched:
-                        if count_15_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_15_side[0] = 0.0
                         count_15_entry[0] = nan
                         count_15_sl[0] = nan
@@ -3317,8 +3261,6 @@ class Main(MainContext):
                         self.low[0] <= count_16_tp[0]
                     )
                     if count_16_sl_touched or count_16_tp_touched:
-                        if count_16_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_16_side[0] = 0.0
                         count_16_entry[0] = nan
                         count_16_sl[0] = nan
@@ -3326,8 +3268,6 @@ class Main(MainContext):
                         count_16_day[0] = nan
                         count_16_bar[0] = -1.0
                     elif count_16_entry_touched:
-                        if count_16_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_16_side[0] = 0.0
                         count_16_entry[0] = nan
                         count_16_sl[0] = nan
@@ -3352,8 +3292,6 @@ class Main(MainContext):
                         self.low[0] <= count_17_tp[0]
                     )
                     if count_17_sl_touched or count_17_tp_touched:
-                        if count_17_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_17_side[0] = 0.0
                         count_17_entry[0] = nan
                         count_17_sl[0] = nan
@@ -3361,8 +3299,6 @@ class Main(MainContext):
                         count_17_day[0] = nan
                         count_17_bar[0] = -1.0
                     elif count_17_entry_touched:
-                        if count_17_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_17_side[0] = 0.0
                         count_17_entry[0] = nan
                         count_17_sl[0] = nan
@@ -3387,8 +3323,6 @@ class Main(MainContext):
                         self.low[0] <= count_18_tp[0]
                     )
                     if count_18_sl_touched or count_18_tp_touched:
-                        if count_18_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_18_side[0] = 0.0
                         count_18_entry[0] = nan
                         count_18_sl[0] = nan
@@ -3396,8 +3330,6 @@ class Main(MainContext):
                         count_18_day[0] = nan
                         count_18_bar[0] = -1.0
                     elif count_18_entry_touched:
-                        if count_18_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_18_side[0] = 0.0
                         count_18_entry[0] = nan
                         count_18_sl[0] = nan
@@ -3422,8 +3354,6 @@ class Main(MainContext):
                         self.low[0] <= count_19_tp[0]
                     )
                     if count_19_sl_touched or count_19_tp_touched:
-                        if count_19_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_19_side[0] = 0.0
                         count_19_entry[0] = nan
                         count_19_sl[0] = nan
@@ -3431,8 +3361,6 @@ class Main(MainContext):
                         count_19_day[0] = nan
                         count_19_bar[0] = -1.0
                     elif count_19_entry_touched:
-                        if count_19_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_19_side[0] = 0.0
                         count_19_entry[0] = nan
                         count_19_sl[0] = nan
@@ -3457,8 +3385,6 @@ class Main(MainContext):
                         self.low[0] <= count_20_tp[0]
                     )
                     if count_20_sl_touched or count_20_tp_touched:
-                        if count_20_day[0] == self._selected_report_day_key:
-                            report_inactive_trades[0] = report_inactive_trades[0] + 1.0
                         count_20_side[0] = 0.0
                         count_20_entry[0] = nan
                         count_20_sl[0] = nan
@@ -3466,8 +3392,6 @@ class Main(MainContext):
                         count_20_day[0] = nan
                         count_20_bar[0] = -1.0
                     elif count_20_entry_touched:
-                        if count_20_day[0] == self._selected_report_day_key:
-                            report_active_trades[0] = report_active_trades[0] + 1.0
                         count_20_side[0] = 0.0
                         count_20_entry[0] = nan
                         count_20_sl[0] = nan
