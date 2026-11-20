@@ -2686,6 +2686,17 @@ class Main(MainContext):
                 self.account_capital * total_risk_percent / 100.0
             )
 
+            # Candidate values are initialized in the parent scope so every
+            # nested setup-calculation branch can access them in Indie.
+            count_new_side = 0.0
+            count_new_entry = nan
+            count_new_stop = nan
+            count_new_tp = nan
+            count_new_risk = 0.0
+            count_new_distance = 0.0
+            count_new_risk_per_lot = 0.0
+            count_new_lot = 0.0
+
             # Independent original-midpoint setup counter.
             # Resolve every outstanding setup independently before arming this bar's setup.
             # SL/TP wins over midpoint if both are touched on the same candle.
@@ -3389,19 +3400,6 @@ class Main(MainContext):
                         count_20_tp[0] = nan
                         count_20_day[0] = nan
                         count_20_bar[0] = -1.0
-
-                #
-                # Build the original midpoint setup independently of live execution sizing.
-                # Candidate variables are declared at this indentation level because
-                # Indie scopes variables to their indentation block.
-                count_new_side = 0.0
-                count_new_entry = nan
-                count_new_stop = nan
-                count_new_tp = nan
-                count_new_risk = 0.0
-                count_new_distance = 0.0
-                count_new_risk_per_lot = 0.0
-                count_new_lot = 0.0
 
                 if not rr_setting_changed:
                     count_sell_ready = sell_condition or sell_breakout_pullback_ready
