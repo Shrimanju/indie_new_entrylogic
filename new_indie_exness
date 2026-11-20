@@ -3689,9 +3689,9 @@ class Main(MainContext):
                         self.high[6], self.high[7]
                     ])
 
-                    # Midpoint is the master reference for common SL/TP.
+                    # Preserve the original midpoint setup and sizing exactly.
+                    # The midpoint determines the original SL, TP and total lot.
                     entry_price = candidate_entry_price
-                    early_price = self.close[0]
 
                     if sell_breakout_pullback_ready:
                         sell_reason = 'BREAKOUT + VOLUME PULLBACK'
@@ -3701,45 +3701,57 @@ class Main(MainContext):
                         candle_range * 0.25,
                         abs(entry_price) * 0.00005
                     )
-                    stop_price = max(stop_price, entry_price + entry_stop_buffer)
+                    stop_price = max(
+                        stop_price,
+                        entry_price + entry_stop_buffer
+                    )
+
                     risk = stop_price - entry_price
-                    mid_distance = abs(entry_price - stop_price)
+                    sl_distance = abs(entry_price - stop_price)
+                    risk_per_one_lot = sl_distance * self.contract_size
+                    calculated_lot = 0.0
+                    calculated_risk_cash = nan
+
+                    if risk_per_one_lot > 0.0 and risk_budget_cash > 0.0:
+                        raw_lot = risk_budget_cash / risk_per_one_lot
+                        calculated_lot = int(raw_lot * 100.0) / 100.0
+                        calculated_risk_cash = (
+                            calculated_lot * risk_per_one_lot
+                        )
+
+                    # Keep the original midpoint setup acceptance test.
+                    early_price = self.close[0]
+                    early_lot = int((calculated_lot * 0.50) * 100.0) / 100.0
+                    mid_lot = int((calculated_lot * 0.50) * 100.0) / 100.0
                     early_distance = abs(early_price - stop_price)
-                    mid_risk_per_lot = mid_distance * self.contract_size
-                    early_risk_per_lot = early_distance * self.contract_size
-
-                    # Count the original midpoint-valid signal independently
-                    # from the new early-leg sizing and execution checks.
-                    midpoint_signal_lot = 0.0
-                    if mid_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        midpoint_signal_lot = int(
-                            (risk_budget_cash / mid_risk_per_lot) * 100.0
-                        ) / 100.0
-                    if (
-                        risk > 0.0
-                        and mid_distance <= maximum_allowed_sl_distance
-                        and midpoint_signal_lot >= 0.01
-                    ):
-                        sell_signal = True
-
-                    early_lot = 0.0
-                    mid_lot = 0.0
-                    early_risk_cash_value = 0.0
-                    mid_risk_cash_value = 0.0
-                    if mid_risk_per_lot > 0.0 and early_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        early_lot = int(((risk_budget_cash * 0.60) / early_risk_per_lot) * 100.0) / 100.0
-                        mid_lot = int(((risk_budget_cash * 0.40) / mid_risk_per_lot) * 100.0) / 100.0
-                        early_risk_cash_value = early_lot * early_risk_per_lot
-                        mid_risk_cash_value = mid_lot * mid_risk_per_lot
+                    early_risk_cash_value = (
+                        early_lot * early_distance * self.contract_size
+                    )
+                    mid_risk_cash_value = (
+                        mid_lot * sl_distance * self.contract_size
+                    )
 
                     if (
                         risk > 0.0
-                        and mid_distance <= maximum_allowed_sl_distance
-                        and early_distance > 0.0
+                        and sl_distance <= maximum_allowed_sl_distance
+                        and calculated_lot >= 0.01
                         and early_lot >= 0.01
+                        and mid_lot >= 0.01
                     ):
                         target_price = entry_price - risk * rr_multiplier
-                        # Early leg executes immediately at confirmation candle close.
+
+                        # FIRST: register the midpoint master pending leg.
+                        pending_trade_side[0] = -1.0
+                        pending_trade_entry[0] = entry_price
+                        pending_mid_entry[0] = entry_price
+                        pending_trade_sl[0] = stop_price
+                        pending_trade_tp[0] = target_price
+                        pending_trade_lot[0] = mid_lot
+                        pending_trade_risk_cash[0] = mid_risk_cash_value
+                        pending_trade_setup_day[0] = current_ist_day_key
+                        pending_trade_setup_bar[0] = float(self.bar_index)
+
+                        # SECOND: execute the other 50% at current market price.
                         entry[0] = early_price
                         early_leg_entry[0] = early_price
                         early_leg_lot[0] = early_lot
@@ -3755,7 +3767,7 @@ class Main(MainContext):
                         side[0] = -1.0
                         trade_lot[0] = early_lot
                         trade_risk_cash[0] = early_risk_cash_value + mid_risk_cash_value
-                        original_risk_distance[0] = mid_distance
+                        original_risk_distance[0] = sl_distance
                         favorable_extreme[0] = entry_price
                         trail_candidate[0] = nan
                         trail_confirm_count[0] = 0.0
@@ -3766,16 +3778,7 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
-                        pending_trade_side[0] = -1.0
-                        pending_trade_entry[0] = entry_price
-                        pending_mid_entry[0] = entry_price
                         pending_early_entry[0] = early_price
-                        pending_trade_sl[0] = stop_price
-                        pending_trade_tp[0] = target_price
-                        pending_trade_lot[0] = mid_lot
-                        pending_trade_risk_cash[0] = mid_risk_cash_value
-                        pending_trade_setup_day[0] = current_ist_day_key
-                        pending_trade_setup_bar[0] = float(self.bar_index)
                         sell_signal = True
 
                         pending_buy[0] = 0.0
@@ -3796,9 +3799,9 @@ class Main(MainContext):
                         self.low[6], self.low[7]
                     ])
 
-                    # Midpoint is the master reference for common SL/TP.
+                    # Preserve the original midpoint setup and sizing exactly.
+                    # The midpoint determines the original SL, TP and total lot.
                     entry_price = candidate_entry_price
-                    early_price = self.close[0]
 
                     if buy_breakout_pullback_ready:
                         buy_reason = 'BREAKOUT + VOLUME PULLBACK'
@@ -3808,45 +3811,57 @@ class Main(MainContext):
                         candle_range * 0.25,
                         abs(entry_price) * 0.00005
                     )
-                    stop_price = min(stop_price, entry_price - entry_stop_buffer)
+                    stop_price = min(
+                        stop_price,
+                        entry_price - entry_stop_buffer
+                    )
+
                     risk = entry_price - stop_price
-                    mid_distance = abs(entry_price - stop_price)
+                    sl_distance = abs(entry_price - stop_price)
+                    risk_per_one_lot = sl_distance * self.contract_size
+                    calculated_lot = 0.0
+                    calculated_risk_cash = nan
+
+                    if risk_per_one_lot > 0.0 and risk_budget_cash > 0.0:
+                        raw_lot = risk_budget_cash / risk_per_one_lot
+                        calculated_lot = int(raw_lot * 100.0) / 100.0
+                        calculated_risk_cash = (
+                            calculated_lot * risk_per_one_lot
+                        )
+
+                    # Keep the original midpoint setup acceptance test.
+                    early_price = self.close[0]
+                    early_lot = int((calculated_lot * 0.50) * 100.0) / 100.0
+                    mid_lot = int((calculated_lot * 0.50) * 100.0) / 100.0
                     early_distance = abs(early_price - stop_price)
-                    mid_risk_per_lot = mid_distance * self.contract_size
-                    early_risk_per_lot = early_distance * self.contract_size
-
-                    # Count the original midpoint-valid signal independently
-                    # from the new early-leg sizing and execution checks.
-                    midpoint_signal_lot = 0.0
-                    if mid_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        midpoint_signal_lot = int(
-                            (risk_budget_cash / mid_risk_per_lot) * 100.0
-                        ) / 100.0
-                    if (
-                        risk > 0.0
-                        and mid_distance <= maximum_allowed_sl_distance
-                        and midpoint_signal_lot >= 0.01
-                    ):
-                        buy_signal = True
-
-                    early_lot = 0.0
-                    mid_lot = 0.0
-                    early_risk_cash_value = 0.0
-                    mid_risk_cash_value = 0.0
-                    if mid_risk_per_lot > 0.0 and early_risk_per_lot > 0.0 and risk_budget_cash > 0.0:
-                        early_lot = int(((risk_budget_cash * 0.60) / early_risk_per_lot) * 100.0) / 100.0
-                        mid_lot = int(((risk_budget_cash * 0.40) / mid_risk_per_lot) * 100.0) / 100.0
-                        early_risk_cash_value = early_lot * early_risk_per_lot
-                        mid_risk_cash_value = mid_lot * mid_risk_per_lot
+                    early_risk_cash_value = (
+                        early_lot * early_distance * self.contract_size
+                    )
+                    mid_risk_cash_value = (
+                        mid_lot * sl_distance * self.contract_size
+                    )
 
                     if (
                         risk > 0.0
-                        and mid_distance <= maximum_allowed_sl_distance
-                        and early_distance > 0.0
+                        and sl_distance <= maximum_allowed_sl_distance
+                        and calculated_lot >= 0.01
                         and early_lot >= 0.01
+                        and mid_lot >= 0.01
                     ):
                         target_price = entry_price + risk * rr_multiplier
-                        # Early leg executes immediately at confirmation candle close.
+
+                        # FIRST: register the midpoint master pending leg.
+                        pending_trade_side[0] = 1.0
+                        pending_trade_entry[0] = entry_price
+                        pending_mid_entry[0] = entry_price
+                        pending_trade_sl[0] = stop_price
+                        pending_trade_tp[0] = target_price
+                        pending_trade_lot[0] = mid_lot
+                        pending_trade_risk_cash[0] = mid_risk_cash_value
+                        pending_trade_setup_day[0] = current_ist_day_key
+                        pending_trade_setup_bar[0] = float(self.bar_index)
+
+                        # SECOND: execute the other 50% at current market price.
                         entry[0] = early_price
                         early_leg_entry[0] = early_price
                         early_leg_lot[0] = early_lot
@@ -3862,7 +3877,7 @@ class Main(MainContext):
                         side[0] = 1.0
                         trade_lot[0] = early_lot
                         trade_risk_cash[0] = early_risk_cash_value + mid_risk_cash_value
-                        original_risk_distance[0] = mid_distance
+                        original_risk_distance[0] = sl_distance
                         favorable_extreme[0] = entry_price
                         trail_candidate[0] = nan
                         trail_confirm_count[0] = 0.0
@@ -3873,16 +3888,7 @@ class Main(MainContext):
                         last_entry_bar[0] = float(self.bar_index)
                         last_entry_price[0] = early_price
                         entry_label_time[0] = self.time[0]
-                        pending_trade_side[0] = 1.0
-                        pending_trade_entry[0] = entry_price
-                        pending_mid_entry[0] = entry_price
                         pending_early_entry[0] = early_price
-                        pending_trade_sl[0] = stop_price
-                        pending_trade_tp[0] = target_price
-                        pending_trade_lot[0] = mid_lot
-                        pending_trade_risk_cash[0] = mid_risk_cash_value
-                        pending_trade_setup_day[0] = current_ist_day_key
-                        pending_trade_setup_bar[0] = float(self.bar_index)
                         buy_signal = True
 
                         pending_buy[0] = 0.0
